@@ -1,0 +1,20 @@
+{
+  "name": "technologyblognotes",
+  "version": "1.0.0",
+  "description": "一个IT技术笔记博客",
+  "main": "index.js",
+  "scripts": {
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LJH95224/TechnologyBlogNotes.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LJH95224/TechnologyBlogNotes/issues"
+  },
+  "homepage": "https://github.com/LJH95224/TechnologyBlogNotes#readme"
+}
