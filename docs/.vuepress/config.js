@@ -1,19 +1,15 @@
 module.exports = {
-  title: '吕金虎个人主页',
-  description: '吕金虎的个人博客',
+  title: 'Alfred个人主页',
+  description: 'Alfred个人博客',
+  dest: './dist', 
+  port: '8888',
+  head: [
+    ['link', { rel: 'icon', href: '/image/hero.png' }]
+  ],
   themeConfig: {
-    nav: [
-      { text: '主页', link: '/' },
-      { text: 'vue', link: '/vue/' },
-      { text: 'Linux', link: '/linux/' },
-      { text: 'android', link: '/android/' },
-      {
-        text: 'Github',
-        link: 'https://github.com/LJH95224'
-      }
-    ],
-    sidebar: {
-      '/android/': [
+    nav: require('./nav.js'),
+    sidebar: { 
+      '/notes/android/': [
         {
           title: 'Android基础知识',
           collapsable: false,
@@ -149,6 +145,17 @@ module.exports = {
           ]
         }
       ]
-    }
+    },
+    sidebarDepth: 2,
+    // lastUpdated: 'lastUpdated',
+    // searchMaxSuggestoins: 10,
+    // serviceWorker: {
+    //   updatePopup: {
+    //     message: '有新的内容',
+    //     buttonText: '更新'
+    //   }
+    // },
+    // editLinks: true,
+    // editLinkText: '在Github上编辑此页'
   }
 }
