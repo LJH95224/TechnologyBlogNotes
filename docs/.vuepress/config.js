@@ -1,8 +1,7 @@
 module.exports = {
   title: 'Alfred个人主页',
   description: 'Alfred个人博客',
-  dest: './dist', 
-  port: '8888',
+  base: `/iTNpotesBlog.github.io/`,
   head: [
     ['link', { rel: 'icon', href: '/image/hero.png' }]
   ],
