@@ -10,9 +10,10 @@ module.exports = [
   {
     text: '技术笔记',
     items: [
-      { text: 'vue技术栈', link: '/notes/vue/' },
       { text: 'android', link: '/notes/android/' },
       { text: 'Linux', link: '/notes/linux/' },
+      { text: 'vue技术栈', link: '/notes/vue/' },
+      { text: 'ECMAScript 6 入门', link: '/notes/ECMAScript/' },
     ]
   },
   { text: '关于我', link: '/aboutMe/' },
