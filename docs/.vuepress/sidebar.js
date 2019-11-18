@@ -136,18 +136,16 @@ module.exports = {
     }
   ],
   '/notes/ECMAScript/': [
-    {
-      title: 'ECMAScript 入门',
-      collapsable: true,
-      children: [
-        'ECMAScript1',
-        'ECMAScript2',
-        'ECMAScript3',
-        'ECMAScript4',
-        'ECMAScript5',
-        'ECMAScript6'
-      ]
-    }
+    'ECMAScript1',
+    'ECMAScript2',
+    'ECMAScript3',
+    'ECMAScript4',
+    'ECMAScript5',
+    'ECMAScript6',
+    'ECMAScript7',
+    'ECMAScript8',
+    'ECMAScript9',
+    'ECMAScript10'
   ],
   '/notes/Markdown/': [
     'markdown1',
