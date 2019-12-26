@@ -157,5 +157,16 @@ module.exports = {
     'markdown7',
     'markdown8',
     'markdown9'
+  ],
+  '/notes/typeScript/': [
+    'typescript1',
+    'typescript2',
+    'typescript3',
+    'typescript4',
+    'typescript5',
+    'typescript6',
+    'typescript7',
+    'typescript8',
+    'typescript9'
   ]
 }

@@ -14,6 +14,7 @@ module.exports = [
       { text: 'android', link: '/notes/android/' },
       { text: 'Markdown', link: '/notes/Markdown/'},
       { text: 'vue技术栈', link: '/notes/vue/' },
+      { text: 'typeScript', link: '/notes/typeScript/' },
       { text: 'ECMAScript 6 入门', link: '/notes/ECMAScript/' },
     ]
   },
