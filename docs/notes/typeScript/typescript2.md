@@ -61,5 +61,3 @@ TypeScript 的问答确实要比很多框架或者基础知识的少很多。如
 <img src="../../.vuepress/public/image/typescript/typescript6.png">
 
 好了，以上就是自学 TypeScript 的一些方法途径。当然了，我们的 TypeScript 知识还是会由我带着大家一起学习哒，所以只要跟紧了别掉队，不怕你学不会。
-
-

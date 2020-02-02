@@ -5,7 +5,9 @@ module.exports = [
   },
   {
     text: '开源项目',
-    link: '/program/'
+    items: [
+      { text: '大文件上传和断点续传', link:'' }
+    ]
   },
   {
     text: '技术笔记',

@@ -145,7 +145,10 @@ module.exports = {
     'ECMAScript7',
     'ECMAScript8',
     'ECMAScript9',
-    'ECMAScript10'
+    'ECMAScript10',
+    'ECMAScript11',
+    'ECMAScript12',
+    'ECMAScript13'
   ],
   '/notes/Markdown/': [
     'markdown1',
