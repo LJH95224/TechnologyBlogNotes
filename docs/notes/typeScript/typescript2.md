@@ -1,4 +1,4 @@
-# 02 TypeScript 应该怎么学？
+# TypeScript 应该怎么学？
 
 ## 学会看文档
 

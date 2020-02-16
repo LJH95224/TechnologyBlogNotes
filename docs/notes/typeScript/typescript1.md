@@ -1,4 +1,4 @@
-# 01 导读：Hello~TypeScript
+# 导读：Hello~TypeScript
 
 那么哪些项目适合用 TypeScript 开发呢?  
 - 需要多人合作开发的项目
