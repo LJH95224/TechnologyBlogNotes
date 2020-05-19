@@ -173,6 +173,12 @@ module.exports = {
     'typescript9',
     'typescript10',
     'typescript11',
-    'typescript12'
+    'typescript12',
+    'typescript13',
+    'typescript14',
+    'typescript15',
+    'typescript16',
+    'typescript17',
+    'typescript18'
   ]
 }
