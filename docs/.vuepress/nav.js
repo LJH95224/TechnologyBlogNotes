@@ -5,7 +5,9 @@ module.exports = [
   },
   {
     text: '开源项目',
-    link: '/program/'
+    items: [
+      { text: '大文件上传和断点续传', link:'' }
+    ]
   },
   {
     text: '技术笔记',
@@ -14,7 +16,17 @@ module.exports = [
       { text: 'android', link: '/notes/android/' },
       { text: 'Markdown', link: '/notes/Markdown/'},
       { text: 'vue技术栈', link: '/notes/vue/' },
+      { text: 'typeScript', link: '/notes/typeScript/' },
       { text: 'ECMAScript 6 入门', link: '/notes/ECMAScript/' },
+      { text: 'JavaScript中常用', link: '/notes/JavaScriptUsed/' },
+    ]
+  },
+  {
+    text: '面试题',
+    items: [
+      { text: 'JS 题', link: '/interview/javascript/' },
+      { text: 'Vue 题', link: '/interview/vue/' },
+      { text: '编程题', link: '/interview/programme/'}
     ]
   },
   { text: '关于我', link: '/aboutMe/' },

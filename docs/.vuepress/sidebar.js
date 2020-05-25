@@ -145,7 +145,10 @@ module.exports = {
     'ECMAScript7',
     'ECMAScript8',
     'ECMAScript9',
-    'ECMAScript10'
+    'ECMAScript10',
+    'ECMAScript11',
+    'ECMAScript12',
+    'ECMAScript13'
   ],
   '/notes/Markdown/': [
     'markdown1',
@@ -158,6 +161,7 @@ module.exports = {
     'markdown8',
     'markdown9'
   ],
+<<<<<<< HEAD
   '/notes/vue/': [
     'vue1',
     'vue2',
@@ -185,5 +189,26 @@ module.exports = {
     'vue24',
     'vue25',
     'vue26'
+=======
+  '/notes/typeScript/': [
+    'typescript1',
+    'typescript2',
+    'typescript3',
+    'typescript4',
+    'typescript5',
+    'typescript6',
+    'typescript7',
+    'typescript8',
+    'typescript9',
+    'typescript10',
+    'typescript11',
+    'typescript12',
+    'typescript13',
+    'typescript14',
+    'typescript15',
+    'typescript16',
+    'typescript17',
+    'typescript18'
+>>>>>>> af3f9212e9d0268792ee6e1947fbbf7ef37dc5da
   ]
 }
