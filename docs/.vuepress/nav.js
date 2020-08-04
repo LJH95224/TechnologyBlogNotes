@@ -6,6 +6,7 @@ module.exports = [
   {
     text: '开源项目',
     items: [
+      { text: '公用方法', link: '/notes/commonMethods/' },
       { text: '大文件上传和断点续传', link:'' }
     ]
   },
@@ -18,7 +19,7 @@ module.exports = [
       { text: 'vue技术栈', link: '/notes/vue/' },
       { text: 'typeScript', link: '/notes/typeScript/' },
       { text: 'ECMAScript 6 入门', link: '/notes/ECMAScript/' },
-      { text: 'JavaScript中常用', link: '/notes/JavaScriptUsed/' },
+      { text: 'JavaScript中常用', link: '/notes/JavaScriptUsed/' }
     ]
   },
   {

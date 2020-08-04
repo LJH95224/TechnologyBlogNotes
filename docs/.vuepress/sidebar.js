@@ -161,7 +161,6 @@ module.exports = {
     'markdown8',
     'markdown9'
   ],
-<<<<<<< HEAD
   '/notes/vue/': [
     'vue1',
     'vue2',
@@ -189,7 +188,7 @@ module.exports = {
     'vue24',
     'vue25',
     'vue26'
-=======
+  ],
   '/notes/typeScript/': [
     'typescript1',
     'typescript2',
@@ -209,6 +208,8 @@ module.exports = {
     'typescript16',
     'typescript17',
     'typescript18'
->>>>>>> af3f9212e9d0268792ee6e1947fbbf7ef37dc5da
+  ],
+  '/notes/commonMethods/': [
+    
   ]
 }
