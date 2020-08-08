@@ -111,18 +111,15 @@ obj.y = 20;
 obj.moveBy(5, 5);
 ```
 
-（2） 不包含 ThisType\<T> 指定的上下文类型，那么此时 this 具有上下文类型，也就是普通的情况。你可以试着把上面使用了 ThisType<T> 的例子中，ObjectDescriptor<D, M>类型中指定methods的类型中的 `& ThisType` 去掉，你会发现 `moveBy` 方法中 `this.x` 和 `this.y` 报错了，因为此时 `this` 的类型是`methods` 这个对象字面量的类型。
-
-
+（2） 不包含 ThisType\<T> 指定的上下文类型，那么此时 this 具有上下文类型，也就是普通的情况。你可以试着把上面使用了 ThisType\<T> 的例子中，ObjectDescriptor<D, M>类型中指定methods的类型中的 `& ThisType` 去掉，你会发现 `moveBy` 方法中 `this.x` 和 `this.y` 报错了，因为此时 `this` 的类型是`methods` 这个对象字面量的类型。
 
 this的类型的规则：
 
 - 如果该方法具有显式声明的此参数，则该参数具有该参数的类型，也就是我们刚刚讲的例3.7.2；
 - 否则，如果该方法由具有此参数的签名进行上下文类型化，则该参数具有该参数的类型，也就是我们讲的例3.7.1；
-- 否则，如果在 tsconfig.json 里将 noImplicitThis 设为 true，且包含的对象文字具有包含 ThisType<T> 的上下文类型，则其类型为T，例子看我们讲的第(1)小点.
-- 否则，如果启用了 --noImplicitThis 并且包含的对象文字具有不包含 ThisType<T> 的上下文类型，则它具有上下文类型，具体看我们讲的第(2)小点。
+- 否则，如果在 tsconfig.json 里将 noImplicitThis 设为 true，且包含的对象文字具有包含 ThisType\<T> 的上下文类型，则其类型为T，例子看我们讲的第(1)小点.
+- 否则，如果启用了 --noImplicitThis 并且包含的对象文字具有不包含 ThisType\<T> 的上下文类型，则它具有上下文类型，具体看我们讲的第(2)小点。
 - 否则，this 的类型为 any 任何类型。
-
 
 
 ## 11.3 索引类型
