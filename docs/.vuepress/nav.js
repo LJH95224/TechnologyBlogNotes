@@ -26,7 +26,8 @@ module.exports = [
     items: [
       { text: 'JS 题', link: '/interview/javascript/' },
       { text: 'Vue 题', link: '/interview/vue/' },
-      { text: '编程题', link: '/interview/programme/'}
+      { text: '编程题', link: '/interview/programme/'},
+      { text: '基本面试题', link: '/interview/base/'}
     ]
   },
   { text: '关于我', link: '/aboutMe/' },
