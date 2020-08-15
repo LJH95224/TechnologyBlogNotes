@@ -1,959 +1,972 @@
-# Promise 对象
-> 1. Promise 的含义
-> 2. 基本用法
-> 3. Promise.prototype.then()
-> 4. Promise.prototype.catch()
-> 5. Promise.prototype.finally()
-> 6. Promise.all()
-> 7. Promise.race()
-> 8. Promise.allSettled()
-> 9. Promise.any()
-> 10. Promise.resolve()
-> 11. Promise.reject()
-> 12. 应用
-> 13. Promise.try()
->
+# 9. 对象的扩展
+
+> 1. 属性的简洁表示法
+> 2. 属性名表达式
+> 3. 方法的 name 属性
+> 4. 属性的可枚举性和遍历
+> 5. super 关键字
+> 6. 对象的扩展运算符
+> 7. 链判断运算符
+> 8. Null 判断运算符
 
 
 
-## 1. Promise 的含义
+## 1. 属性的简洁表示法
 
-Promise 是一部编程的一种解决方案，比传统的解决防范--回调函数和事件--更合理和更强大。它由社区最早提出和实现，ES6 将其写进了语言标准，统一了用法，原生提供了 `Promise` 对象。
-
-所谓 `Promise` 简单说就是一个容器，里面保存着未来才回结束的事件（通常是一个异步操作）的结果。从语法上说，Promise 是一个对象，从它可以获取异步操作的消息。Promise 提供统一的 API，各种异步操作都可以用同样的方法进行处理。
-
-`Promise` 对象有以下两个特点。
-
-（1） 对象的状态不受外界影响。 `Promise` 对象代表一个异步操作，有三种状态：`pending` （进行中）、`fulfilled` （已成功）、`rejected`（已失败）。只有异步操作的结果，可以决定当前是哪一种状态，任何其他操作都无法改变这个状态。这也是 `Promise` 这个名字的由来，它的英语意思就是”承诺“，表示其他手段无法改变。
-
-（2）一旦状态改变，就不会再变，任何时候都可以得到这个结果。`Promise` 对象的状态改变，只有两种可能：从 `pending` 变为 `fulfilled` 和从 `pending` 变为 `rejected`。只要这两种情况方法，状态就凝固了，不会再变了，会一直保持这个结果，这时就称为 `resolved` （已定型）。如果改变已经发生了，你再对 `Promise` 对象添加回调函数，也会立即得到这个结果。这与事件（Event）完全不同，事件的特点是，如果你错过了它，再去监听，是得不到结果的。
-
-注意，为了行为方便，本章后面的 `resolved` 统一只指 `fulfilled` 状态，不包含 `rejected` 状态。
-
-有了`Promise`对象，就可以将异步操作以同步操作的流程表达出来，避免了层层嵌套的回调函数。此外，`Promise`对象提供统一的接口，使得控制异步操作更加容易。
-
-`Promise`也有一些缺点。首先，无法取消`Promise`，一旦新建它就会立即执行，无法中途取消。其次，如果不设置回调函数，`Promise`内部抛出的错误，不会反应到外部。第三，当处于`pending`状态时，无法得知目前进展到哪一个阶段（刚刚开始还是即将完成）。
-
-如果某些事件不断地反复发生，一般来说，使用 [Stream](https://nodejs.org/api/stream.html) 模式是比部署`Promise`更好的选择。
-
-## 2. 基本用法
-
-ES6 规定，`Promise` 对象是一个构造函数，用来生成 `Promise` 实例。
-
-下面代码创造了一个 `Promise` 实例。
+ ES6 允许在大括号里面，直接写入变量和函数，作为对象的属性和方法。这样的书写更加简洁。 
 
 ```javascript
-const promise = new Promise(function (resolve, reject) {
-    // ... some code
-    if (/* 异步操作成功 */) {
-    	resolve(value)
-    } else {
-    	reject(error)
-    }
-})
-```
-
-`Promise`构造函数接受一个函数作为参数，该函数的两个参数分别是`resolve`和`reject`。它们是两个函数，由 JavaScript 引擎提供，不用自己部署。
-
-`resolve`函数的作用是，将`Promise`对象的状态从“未完成”变为“成功”（即从 pending 变为 resolved），在异步操作成功时调用，并将异步操作的结果，作为参数传递出去；`reject`函数的作用是，将`Promise`对象的状态从“未完成”变为“失败”（即从 pending 变为 rejected），在异步操作失败时调用，并将异步操作报出的错误，作为参数传递出去。
-
-`Promise`实例生成以后，可以用`then`方法分别指定`resolved`状态和`rejected`状态的回调函数。
-
-```javascript
-promise.then(function(value){
-    // success
-},function(error) {
-    // failure
-})
-```
-
-`then` 方法可以接受两个回调函数作为参数。第一个回调函数是`Promise`对象的状态变为`resolved`时调用，第二个回调函数是`Promise`对象的状态变为`rejected`时调用。其中，第二个函数是可选的，不一定要提供。这两个函数都接受`Promise`对象传出的值作为参数。
-
-下面是一个`Promise`对象的简单例子。
-
-```javascript
-function timeout (ms) {
-    return new Promise((resolve, reject) => {
-        setTimeout(resolve, ms, 'done')
-    })
-}
-
-timeout(1000).then((value) => {
-    console.log(value)
-})
-```
-
-运行结果：
-
-<img  src="../../.vuepress/public/image/es6/image-20200120190103255.png" />
-
-上面代码中，`timeout`方法返回一个`Promise`实例，表示一段时间以后才会发生的结果。过了指定的时间（`ms`参数）以后，`Promise`实例的状态变为`resolved`，就会触发`then`方法绑定的回调函数。
-
-Promise 新建后就会立即执行。
-
-```javascript
-let promise = new Promise(function(resolve, reject) {
-    console.log('Promise')
-    resolve()
-})
-
-promise.then(function() {
-  console.log('resolved.')
-})
-console.log('Hi!')
-
-// Promise
-// Hi!
-// resolved
-```
-
-上面代码中，Promise 新建后立即执行，所以首先输出的是`Promise`。然后，`then`方法指定的回调函数，将在当前脚本所有同步任务执行完才会执行，所以`resolved`最后输出。
-
-下面是异步加载图片的例子。
-
-```javascript
-function loadImageAsync(url) {
-    return new Promise(function(resolve, reject) {
-        const image = new Image();
-        
-        image.onload = function() {
-            resolve(image)
-        };
-        
-        image.onerror = function() {
-            reject(new Error('Could not load image at' + url));
-        };
-        
-        image.src = url;
-    })
-}
-```
-
-上面代码中，使用`Promise`包装了一个图片加载的异步操作。如果加载成功，就调用`resolve`方法，否则就调用`reject`方法。
-
-下面是一个用`Promise`对象实现的 Ajax 操作的例子。
-
-```javascript
-const getJSON = function(url) {
-    const promise = new Promise(function(resolve, reject) {
-        
-        const handler = function() {
-            if (this.readyState !== 4) {
-                return
-            }
-            if (this.status === 200) {
-                resolve(this.response);
-            } else {
-                reject(new Error(this.statusText));
-            }
-        };
-        
-        const client = new XMLHttpRequest();
-        client.open('GET', url);
-        client.onreadystatechange = handler;
-        client.responseType = "json";
-        client.setRequestHeader("Accept", "application/json");
-        client.send();
-    })
-    return promise
-}
-
-getJSON('/post.json').then(function(json) {
-	console.log('Contents:' + json);
-}, function(error) {
-    console.log('出错了', error)
-})
-```
-
-上面代码中，`getJSON`是对 XMLHttpRequest 对象的封装，用于发出一个针对 JSON 数据的 HTTP 请求，并且返回一个`Promise`对象。需要注意的是，在`getJSON`内部，`resolve`函数和`reject`函数调用时，都带有参数。
-
-如果调用`resolve`函数和`reject`函数时带有参数，那么它们的参数会被传递给回调函数。`reject`函数的参数通常是`Error`对象的实例，表示抛出的错误；`resolve`函数的参数除了正常的值以外，还可能是另一个 Promise 实例，比如像下面这样。
-
-```javascript
-const p1 = new Promise(function (resolve, reject) {
-  // ...
-});
-
-const p2 = new Promise(function (resolve, reject) {
-  // ...
-  resolve(p1);
-})
-```
-
-上面代码中，`p1`和`p2`都是 Promise 的实例，但是`p2`的`resolve`方法将`p1`作为参数，即一个异步操作的结果是返回另一个异步操作。
-
-注意，这时`p1`的状态就会传递给`p2`，也就是说，`p1`的状态决定了`p2`的状态。如果`p1`的状态是`pending`，那么`p2`的回调函数就会等待`p1`的状态改变；如果`p1`的状态已经是`resolved`或者`rejected`，那么`p2`的回调函数将会立刻执行。
-
-```javascript
-const p1 = new Promise(function (resolve, reject) {
-  setTimeout(() => reject(new Error('fail')), 3000)
-})
-
-const p2 = new Promise(function (resolve, reject) {
-  setTimeout(() => resolve(p1), 1000)
-})
-
-p2.then(result => console.log('result', result)).catch(error => console.log('error', error))
-```
-
-上面代码中，`p1`是一个 Promise，3 秒之后变为`rejected`。`p2`的状态在 1 秒之后改变，`resolve`方法返回的是`p1`。由于`p2`返回的是另一个 Promise，导致`p2`自己的状态无效了，由`p1`的状态决定`p2`的状态。所以，后面的`then`语句都变成针对后者（`p1`）。又过了 2 秒，`p1`变为`rejected`，导致触发`catch`方法指定的回调函数。
-
-运行结果：
-
-<img  src="../../.vuepress/public/image/es6/image-20200120193418061.png" />
-
-注意，调用`resolve`或`reject`并不会终结 Promise 的参数函数的执行。
-
-```javascript
-new Promise((resolve, reject) => {
-  resolve(1);
-  console.log(2);
-}).then(r => {
-  console.log(r);
-});
-// 2
-// 1
-```
-
-上面代码中，调用`resolve(1)`以后，后面的`console.log(2)`还是会执行，并且会首先打印出来。这是因为立即 resolved 的 Promise 是在本轮事件循环的末尾执行，总是晚于本轮循环的同步任务。
-
-一般来说，调用`resolve`或`reject`以后，Promise 的使命就完成了，后继操作应该放到`then`方法里面，而不应该直接写在`resolve`或`reject`的后面。所以，最好在它们前面加上`return`语句，这样就不会有意外。
-
-```javascript
-new Promise((resolve, reject) => {
-  return resolve(1);
-  // 后面的语句不会执行
-  console.log(2);
-})
-```
-
-## 3. Promise.prototype.then()
-Promise 实例具有 `then` 方法，也就是说，`then` 方法是定义在原型对象 `Promise.prototype` 上的。它的作用为 Promise 实例添加状态改变时的回调函数。前面说过，`then` 方法的第一个参数是 `resolved` 状态的回调函数，第二个参数（可选）是 `rejected` 状态的回调函数。
-
-`then` 方法返回的是一个新的 `Promise` 实例（注意，不是原来那个 `Promise` 实例）。因此可以采用链式写法，即 `then` 方法后面再调用另一个 `then` 方法。
-
-```javascript
-getJSON('/posts.json').then(function(json) {
-    return json.post
-}.then(function() {
-    // ...
-}))
-```
-
-上面的代码使用 `then` 方法，依次指定了两个回调函数。第一个回调函数完成以后，会将返回结果作为参数，传入第二个回调函数。
-
-采用链式的 `then` ，可以指定一组按照次序调用的回调函数。这时，前一个回调函数，有可能返回的还是一个 `Promise` 对象（即有异步参数），这时后一个回调函数，就回等待该 `Promise` 对象的状态发生变化，才会被调用。
-
-```javascript
-getJSON('/post/1.json').then(function() {
-    return getJSON(post.commentURL)
-}).then(function(comments) {
-    console.log('resolved:', comments);
-},function (err) {
-    console.log('rejected:', err)
-})
-```
-
-上面代码中，第一个 `then` 方法指定的回调函数，返回的是另一个 `Promise` 对象。这时，第二个 `then` 方法指定的回调函数，就回等待这个新的 `Promise` 对象状态发生变化。如果变为 `resolved` ，就调用第一个回调函数，如果状态变为 `rejected0`，就调用第二个回调函数。
-
-如果采用箭头函数，上面的代码可以写得更简洁。
-
-```javascript
-getJSON("/post/1.json").then(
-  post => getJSON(post.commentURL)
-).then(
-  comments => console.log("resolved: ", comments),
-  err => console.log("rejected: ", err)
-);
-```
-
-## 4. Promise.prototype.cache()
-
-`Promise.prototype.catch` 方法是 `.then(null, rejection)` 或 `.then(undefined, rejection)` 的别名，用于指定发生错误的回调函数。
-
-```javascript
-getJSON('/posts.json').then(function(posts) {
-  // ...
-}).catch(function(error) {
-  // 处理 getJSON 和 前一个回调函数运行时发生的错误
-  console.log('发生错误！', error);
-});
-```
-
-上面代码中，`getJSON` 方法返回一个 Promise 对象，如果该对象状态变为 `resolved`，则会调用 `then` 方法指定的回调函数；如果异步操作抛出错误，状态就会变为 `rejected`，就会调用 `catch` 方法指定的回调函数，处理这个错误。另外，`then` 方法指定的回调函数，如果运行中抛出错误，也会被 `catch` 方法捕获。
-
-```javascript
-p.then((val) => console.log('fulfilled:', val))
-  .catch((err) => console.log('rejected', err));
+const foo = 'bar';
+const baz = {foo};
+baz // {foo: "bar"}
 
 // 等同于
-p.then((val) => console.log('fulfilled:', val))
-  .then(null, (err) => console.log("rejected:", err));
+const baz = {foo: foo};
 ```
 
-下面是一个例子。
+ 上面代码中，变量`foo`直接写在大括号里面。这时，属性名就是变量名, 属性值就是变量值。下面是另一个例子。 
 
 ```javascript
-const promise = new Promise(function(resolve, reject) {
-  throw new Error('test');
-});
-promise.catch(function(error) {
-  console.log(error);
-});
-// Error: test
+function f(x, y) {
+  return {x, y};
+}
+
+// 等同于
+
+function f(x, y) {
+  return {x: x, y: y};
+}
+
+f(1, 2) // Object {x: 1, y: 2}
 ```
 
-上面代码中，`promise` 抛出一个错误，就被 `catch` 方法指定的回调函数捕获。注意，上面的写法与下面两种写法是等价的。
+ 除了属性简写，方法也可以简写。 
+
+```javascript
+const o = {
+  method() {
+    return "Hello!";
+  }
+};
+
+// 等同于
+
+const o = {
+  method: function() {
+    return "Hello!";
+  }
+};
+```
+
+下面是一个实际的例子。
+
+```javascript
+let birth = '2000/01/01';
+
+const Person = {
+
+  name: '张三',
+
+  //等同于birth: birth
+  birth,
+
+  // 等同于hello: function ()...
+  hello() { console.log('我的名字是', this.name); }
+
+};
+```
+
+ 这种写法用于函数的返回值，将会非常方便。 
+
+```javascript
+function getPoint() {
+  const x = 1;
+  const y = 10;
+  return {x, y};
+}
+
+getPoint()
+// {x:1, y:10}
+```
+
+ CommonJS 模块输出一组变量，就非常合适使用简洁写法。 
+
+```javascript
+let ms = {};
+
+function getItem (key) {
+  return key in ms ? ms[key] : null;
+}
+
+function setItem (key, value) {
+  ms[key] = value;
+}
+
+function clear () {
+  ms = {};
+}
+
+module.exports = { getItem, setItem, clear };
+// 等同于
+module.exports = {
+  getItem: getItem,
+  setItem: setItem,
+  clear: clear
+};
+```
+
+ 属性的赋值器（setter）和取值器（getter），事实上也是采用这种写法。 
+
+```javascript
+const cart = {
+  _wheels: 4,
+
+  get wheels () {
+    return this._wheels;
+  },
+
+  set wheels (value) {
+    if (value < this._wheels) {
+      throw new Error('数值太小了！');
+    }
+    this._wheels = value;
+  }
+}
+
+cart.wheels // 4
+cart.wheels = 3 // Error: 数值太小了
+cart.wheels = 5
+cart.wheels // 5
+```
+
+ 简洁写法在打印对象时也很有用。 
+
+```javascript
+let user = {
+  name: 'test'
+};
+
+let foo = {
+  bar: 'baz'
+};
+
+console.log(user, foo)
+// {name: "test"} {bar: "baz"}
+console.log({user, foo})
+// {user: {name: "test"}, foo: {bar: "baz"}}
+```
+
+ 上面代码中，`console.log`直接输出`user`和`foo`两个对象时，就是两组键值对，可能会混淆。把它们放在大括号里面输出，就变成了对象的简洁表示法，每组键值对前面会打印对象名，这样就比较清晰了。 
+
+**注意，简写的对象方法不能用作构造函数，会报错。 **
+
+```javascript
+const obj = {
+  f() {
+    this.foo = 'bar';
+  }
+};
+
+new obj.f() // 报错
+```
+
+ 上面代码中，`f`是一个简写的对象方法，所以`obj.f`不能当作构造函数使用。 
+
+
+
+## 2. 属性名表达式
+
+ JavaScript 定义对象的属性，有两种方法。 
+
+```javascript
+// 方法一
+obj.foo = true;
+
+// 方法二
+obj['a' + 'bc'] = 123;
+```
+
+上面代码的方法一是直接用标识符作为属性名，方法二是用表达式作为属性名，这时要将表达式放在方括号之内。
+
+但是，如果使用字面量方式定义对象（使用大括号），在 ES5 中只能使用方法一（标识符）定义属性。
+
+```javascript
+var obj = {
+  foo: true,
+  abc: 123
+};
+```
+
+ ES6 允许字面量定义对象时，用方法二（表达式）作为对象的属性名，即把表达式放在方括号内。 
+
+```javascript
+let propKey = 'foo';
+
+let obj = {
+  [propKey]: true,
+  ['a' + 'bc']: 123
+};
+// {foo: true, abc: 123}
+```
+
+ 下面是另一个例子。 
+
+```javascript
+let lastWord = 'last word';
+
+const a = {
+  'first word': 'hello',
+  [lastWord]: 'world'
+};
+
+a['first word'] // "hello"
+a[lastWord] // "world"
+a['last word'] // "world"
+```
+
+ 表达式还可以用于定义方法名。 
+
+```javascript
+let obj = {
+  ['h' + 'ello']() {
+    return 'hi';
+  }
+};
+
+obj.hello() // hi
+```
+
+ 注意，属性名表达式与简洁表示法，不能同时使用，会报错。 
+
+```javascript
+// 报错
+const foo = 'bar';
+const bar = 'abc';
+const baz = { [foo] };
+
+// 正确
+const foo = 'bar';
+const baz = { [foo]: 'abc'};
+```
+
+注意，属性名表达式如果是一个对象，默认情况下会自动将对象转为字符串`[object Object]`，这一点要特别小心。
+
+```javascript
+const keyA = {a: 1};
+const keyB = {b: 2};
+
+const myObject = {
+  [keyA]: 'valueA',
+  [keyB]: 'valueB'
+};
+
+myObject // Object {[object Object]: "valueB"}
+```
+
+ 上面代码中，`[keyA]`和`[keyB]`得到的都是`[object Object]`，所以`[keyB]`会把`[keyA]`覆盖掉，而`myObject`最后只有一个`[object Object]`属性。 
+
+
+
+## 3. 方法的 name 属性
+
+函数的 `name` 属性，返回函数名。对象方法也是函数，因此也有 `name` 属性。
+
+```javascript
+const person = {
+  sayName() {
+    console.log('hello!');
+  },
+};
+
+person.sayName.name   // "sayName"
+```
+
+ 上面代码中，方法的`name`属性返回函数名（即方法名）。 
+
+如果对象的方法使用了取值函数（`getter`）和存值函数（`setter`）, 则 `name` 属性不是在该方法上面，而是该方法的属性的描述对象的 `get` 和 `set` 属性上面，返回值是方法名前加上 `get` 和 `set`。
+
+```javascript
+const obj = {
+  get foo() {},
+  set foo(x) {}
+};
+
+obj.foo.name
+// TypeError: Cannot read property 'name' of undefined
+
+const descriptor = Object.getOwnPropertyDescriptor(obj, 'foo');
+
+descriptor.get.name // "get foo"
+descriptor.set.name // "set foo"
+```
+
+ **`Object.getOwnPropertyDescriptor()`** 方法返回指定对象上一个自有属性对应的属性描述符。 
+
+ 有两种特殊情况：`bind`方法创造的函数，`name`属性返回`bound`加上原函数的名字；`Function`构造函数创造的函数，`name`属性返回`anonymous`。 
+
+```javascript
+(new Function()).name // "anonymous"
+
+var doSomething = function() {
+  // ...
+};
+doSomething.bind().name // "bound doSomething"
+```
+
+ 如果对象的方法是一个 Symbol 值，那么`name`属性返回的是这个 Symbol 值的描述。 
+
+```javascript
+const key1 = Symbol('description');
+const key2 = Symbol();
+let obj = {
+  [key1]() {},
+  [key2]() {},
+};
+obj[key1].name // "[description]"
+obj[key2].name // ""
+```
+
+ 上面代码中，`key1`对应的 Symbol 值有描述，`key2`没有。 
+
+
+
+## 4. 属性的可枚举性和遍历
+
+### 4.1 可枚举性
+
+对象的每个属性都有一个描述对象（`Descriptor`），用来控制该属性的行为。
+
+`Object.getOwnPropertyDescriptor` 方法可以获取该属性的描述对象。
+
+```javascript
+let obj = { foo: 123 };
+Object.getOwnPropertyDescriptor(obj, 'foo')
+//  {
+//    value: 123,
+//    writable: true,
+//    enumerable: true,
+//    configurable: true
+//  }
+```
+
+ 描述对象的`enumerable`属性，称为“可枚举性”，如果该属性为`false`，就表示某些操作会忽略当前属性。 
+
+ 目前，有四个操作会忽略`enumerable`为`false`的属性。 
+
+- `for...in` 循环： 只遍历对象自身的和继承的可枚举的属性。
+- `Object.keys()` ：返回对象自身的所有可枚举的属性的键名。
+- `JSON.stringify()` ： 只串行化对象自身的可枚举的属性。
+- `Object.assign()` : 忽略 `enumerable` 为 `false` 的属性，只拷贝对象自身的可枚举的属性。
+
+这四个操作之中，前三个是 ES5 就有的，最后一个 `Object.assign()` 是 ES6 新增的。其中，只有 `for...in` 会返回继承的属性，其他三个方法都会忽略继承的属性，只处理对象自身的属性。实际上，引入 "可枚举"（`enumerable`） 这个概念的最初目的，就是让某些属性可以规避掉 `for...in` 操作，不然所有内部属性和方法都会被遍历到。比如，对象原型的 `toString` 方法，以及数组的 `length` 属性，就通过 “可枚举性”，从而避免被 `for...in` 遍历到。
+
+```javascript
+Object.getOwnPropertyDescriptor(Object.prototype, 'toString').enumerable
+// false
+
+Object.getOwnPropertyDescriptor([], 'length').enumerable
+// false
+```
+
+ 上面代码中，`toString`和`length`属性的`enumerable`都是`false`，因此`for...in`不会遍历到这两个继承自原型的属性。 
+
+ 另外，ES6 规定，所有 Class 的原型的方法都是不可枚举的。 
+
+```javascript
+Object.getOwnPropertyDescriptor(class {foo() {}}.prototype, 'foo').enumerable
+// false
+```
+
+ 总的来说，操作中引入继承的属性会让问题复杂化，大多数时候，我们只关心对象自身的属性。所以，尽量不要用`for...in`循环，而用`Object.keys()`代替。 
+
+
+
+### 4.2 属性的遍历
+
+ES6 一共有5种方法可以遍历对象的属性。
+
+#### 4.2.1 for...in
+
+`for...in` 循环遍历对象自身的和继承的可枚举属性（不含Symbol属性）
+
+#### 4.2.2 Object.keys(obj)
+
+ `Object.keys`返回一个数组，包括对象自身的（不含继承的）所有可枚举属性（不含 Symbol 属性）的键名。 
+
+#### 4.2.3 Object.getOwnPropertyNames(obj)
+
+ `Object.getOwnPropertyNames`返回一个数组，包含对象自身的所有属性（不含 Symbol 属性，但是包括不可枚举属性）的键名。 
+
+#### 4.2.4  Object.getOwnPropertySymbols(obj)
+
+ `Object.getOwnPropertySymbols`返回一个数组，包含对象自身的所有 Symbol 属性的键名。 
+
+#### 4.2.5 Reflect.ownKeys(obj)
+
+ `Reflect.ownKeys`返回一个数组，包含对象自身的（不含继承的）所有键名，不管键名是 Symbol 或字符串，也不管是否可枚举。 
+
+
+
+ 以上的 5 种方法遍历对象的键名，都遵守同样的属性遍历的次序规则。 
+
+- 首先遍历所有数值键，按照数值升序排列。
+- 其次遍历所有字符串键，按照加入时间升序排列。
+- 最后遍历所有 Symbol 键，按照加入时间升序排列
+
+```javascript
+Reflect.ownKeys({ [Symbol()]:0, b:0, 10:0, 2:0, a:0 })
+// ['2', '10', 'b', 'a', Symbol()]
+```
+
+ 上面代码中，`Reflect.ownKeys`方法返回一个数组，包含了参数对象的所有属性。这个数组的属性次序是这样的，首先是数值属性`2`和`10`，其次是字符串属性`b`和`a`，最后是 Symbol 属性。 
+
+
+
+## 5. super 关键字
+
+ 我们知道，`this`关键字总是指向函数所在的当前对象，ES6 又新增了另一个类似的关键字`super`，指向当前对象的原型对象。 
+
+```javascript
+const proto = {
+  foo: 'hello'
+};
+
+const obj = {
+  foo: 'world',
+  find() {
+    return super.foo;
+  }
+};
+
+Object.setPrototypeOf(obj, proto);
+obj.find() // "hello"
+```
+
+ 上面代码中，对象`obj.find()`方法之中，通过`super.foo`引用了原型对象`proto`的`foo`属性。 
+
+ 注意，`super`关键字表示原型对象时，只能用在对象的方法之中，用在其他地方都会报错。 
+
+```javascript
+// 报错
+const obj = {
+  foo: super.foo
+}
+
+// 报错
+const obj = {
+  foo: () => super.foo
+}
+
+// 报错
+const obj = {
+  foo: function () {
+    return super.foo
+  }
+}
+```
+
+ 上面三种`super`的用法都会报错，因为对于 JavaScript 引擎来说，这里的`super`都没有用在对象的方法之中。第一种写法是`super`用在属性里面，第二种和第三种写法是`super`用在一个函数里面，然后赋值给`foo`属性。目前，只有对象方法的简写法可以让 JavaScript 引擎确认，定义的是对象的方法。 
+
+ JavaScript 引擎内部，`super.foo`等同于`Object.getPrototypeOf(this).foo`（属性）或`Object.getPrototypeOf(this).foo.call(this)`（方法）。 
+
+```javascript
+const proto = {
+  x: 'hello',
+  foo() {
+    console.log(this.x);
+  },
+};
+
+const obj = {
+  x: 'world',
+  foo() {
+    super.foo();
+  }
+}
+
+Object.setPrototypeOf(obj, proto);
+
+obj.foo() // "world"
+```
+
+ 上面代码中，`super.foo`指向原型对象`proto`的`foo`方法，但是绑定的`this`却还是当前对象`obj`，因此输出的就是`world`。 
+
+
+
+## 6. 对象的扩展运算符
+
+ 《数组的扩展》一章中，已经介绍过扩展运算符（`...`）。ES2018 将这个运算符[引入](https://github.com/sebmarkbage/ecmascript-rest-spread)了对象。 
+
+### 6.1 解构赋值
+
+对象的解构赋值用于从一个对象取值，相当于将目标对象自身的所有可遍历的 （enumerable）、但尚未被读取的属性，分配到指定的对象上面。所有的键和它们对应的值，都会拷贝到新的对象上面
+
+```javascript
+let { x, y, ...z } = { x: 1, y: 2, a: 3, b: 4 };
+x // 1
+y // 2
+z // { a: 3, b: 4 }
+```
+
+上面代码中，变量`z`是解构赋值所在的对象。它获取等号右边的所有尚未读取的键（`a`和`b`），将它们连同值一起拷贝过来。
+
+ 由于解构赋值要求等号右边是一个对象，所以如果等号右边是`undefined`或`null`，就会报错，因为它们无法转为对象。 
+
+```javascript
+let { ...z } = null; // 运行时错误
+let { ...z } = undefined; // 运行时错误
+```
+
+解构赋值必须是最后一个参数，否则会报错。
+
+```javascript
+let { ...x, y, z } = someObject; // 句法错误
+let { x, ...y, ...z } = someObject; // 句法错误
+```
+
+上面代码中，解构赋值不是最后一个参数，所以会报错。
+
+**注意，解构赋值的拷贝是浅拷贝**，即如果一个键的值是复合类型的值（数组、对象、函数）、那么解构赋值拷贝的是这个值的引用，而不是这个值的副本。
+
+```javascript
+let obj = {
+    a: {b: 1}
+}
+let {...x} = obj
+obj.a.b = 2
+x.a.b // 2
+```
+
+ 上面代码中，`x`是解构赋值所在的对象，拷贝了对象`obj`的`a`属性。`a`属性引用了一个对象，修改这个对象的值，会影响到解构赋值对它的引用。 
+
+ 另外，扩展运算符的解构赋值，不能复制继承自原型对象的属性。 
+
+```javascript
+let o1 = { a: 1 };
+let o2 = { b: 2 };
+o2.__proto__ = o1;
+let { ...o3 } = o2;
+o3 // { b: 2 }
+o3.a // undefined
+```
+
+上面代码中，对象`o3`复制了`o2`，但是只复制了`o2`自身的属性，没有复制它的原型对象`o1`的属性。
+
+```javascript
+const o = Object.create({ x: 1, y: 2 });
+o.z = 3;
+o // { z: 3, _proto_: { x:1, y:2}}
+let { x, ...newObj } = o; // newObj { z:3}
+let { y, z } = newObj;
+x // 1
+y // undefined
+z // 3
+```
+
+上面代码中，变量 `x` 是 单纯的解构赋值，所以可以读取对象 `o` 继承的属性；变量 `z` 和 `y` 是扩展运算符的解构赋值，只能读取对象 `o` 自身的属性，所以变量 `z` 可以赋值成功，变量 `y` 取不到值。ES6 规定，变量声明语句中，如果使用解构赋值，扩展运算符后面必须是一个变量名，而不能是一个解构赋值表达式，所以上面代码引入了中间变量 `newObj`, 如果写成下面这样会报错。
+
+```javascript
+let { x, ...{ y, z } } = o;
+// SyntaxError: ... must be followed by an identifier in declaration contexts
+```
+
+ 解构赋值的一个用处，是扩展某个函数的参数，引入其他操作。 
+
+```javascript
+function baseFunction({ a, b }) {
+  // ...
+}
+function wrapperFunction({ x, y, ...restConfig }) {
+  // 使用 x 和 y 参数进行操作
+  // 其余参数传给原始函数
+  return baseFunction(restConfig);
+}
+```
+
+ 上面代码中，原始函数`baseFunction`接受`a`和`b`作为参数，函数`wrapperFunction`在`baseFunction`的基础上进行了扩展，能够接受多余的参数，并且保留原始函数的行为。 
+
+
+
+### 6.2 扩展运算符
+
+对象的扩展运算符（`...`）用于取出参数对象的所有可遍历属性，拷贝到当前对象之中。
+
+```javascript
+let z = { a: 3, b: 4 };
+let n = { ...z };
+n // { a: 3, b: 4 }
+```
+
+ 由于数组是特殊的对象，所以对象的扩展运算符也可以用于数组。
+
+```javascript
+let foo = { ...['a', 'b', 'c'] };
+foo
+// {0: "a", 1: "b", 2: "c"}
+```
+
+  如果扩展运算符后面是一个空对象，则没有任何效果。 
+
+```javascript
+{...{}, a: 1}
+// { a: 1 }
+```
+
+ 如果扩展运算符后面不是对象，则会自动将其转为对象。 
+
+```javascript
+// 等同于 {...Object(1)}
+{...1} // {}
+```
+
+ 上面代码中，扩展运算符后面是整数`1`，会自动转为数值的包装对象`Number{1}`。由于该对象没有自身属性，所以返回一个空对象。 
+
+下面的例子都是类似的道理。
+
+```javascript
+// 等同于 {...Object(true)}
+{...true} // {}
+
+// 等同于 {...Object(undefined)}
+{...undefined} // {}
+
+// 等同于 {...Object(null)}
+{...null} // {}
+```
+
+但是，如果扩展运算符后面是字符串，它会自动转成一个类似数组的对象，因此返回的不是空对象。
+
+```javascript
+{...'hello'}
+// {0: "h", 1: "e", 2: "l", 3: "l", 4: "o"}
+```
+
+对象的扩展运算符等同于使用`Object.assign()`方法。
+
+```javascript
+let aClone = { ...a };
+// 等同于
+let aClone = Object.assign({}, a);
+```
+
+ 上面的例子只是拷贝了对象实例的属性，如果想完整克隆一个对象，还拷贝对象原型的属性，可以采用下面的写法。 
 
 ```javascript
 // 写法一
-const promise = new Promise(function(resolve, reject) {
-  try {
-    throw new Error('test');
-  } catch(e) {
-    reject(e);
-  }
-});
-promise.catch(function(error) {
-  console.log(error);
-});
+const clone1 = {
+  __proto__: Object.getPrototypeOf(obj),
+  ...obj
+};
 
 // 写法二
-const promise = new Promise(function(resolve, reject) {
-  reject(new Error('test'));
-});
-promise.catch(function(error) {
-  console.log(error);
-});
-```
-
-比较上面两种写法，可以发现 `reject` 方法的作用，等同于抛出错误。
-
-如果 Promise 状态已经变成`resolved`，再抛出错误是无效的。
-
-```javascript
-const promise = new Promise(function(resolve, reject) {
-  resolve('ok');
-  throw new Error('test');
-});
-promise
-  .then(function(value) { console.log(value) })
-  .catch(function(error) { console.log(error) });
-// ok
-```
-
-上面代码中，Promise 在 `resolve` 语句后面，再抛出错误，不会被捕获，等于没有抛出。因为 Promise 的状态一旦改变，就永久保持该状态，不会再变了。
-
-Promise 对象的错误具有“冒泡”性质，会一直向后传递，直到被捕获为止。也就是说，错误总是会被下一个`catch`语句捕获。
-
-```javascript
-getJSON('/post/1.json').then(function(post) {
-  return getJSON(post.commentURL);
-}).then(function(comments) {
-  // some code
-}).catch(function(error) {
-  // 处理前面三个Promise产生的错误
-});
-```
-
-上面代码中，一共有三个 Promise 对象：一个由 `getJSON` 产生，两个由 `then` 产生。它们之中任何一个抛出的错误，都会被最后一个 `catch` 捕获。
-
-一般来说，不要在 `then` 方法里面定义 Reject 状态的回调函数（即 `then` 的第二个参数），总是使用 `catch` 方法。
-
-```javascript
-// bad
-promise
-  .then(function(data) {
-    // success
-  }, function(err) {
-    // error
-  });
-
-// good
-promise
-  .then(function(data) { //cb
-    // success
-  })
-  .catch(function(err) {
-    // error
-  });
-```
-
-上面代码中，第二种写法要好于第一种写法，理由是第二种写法可以捕获前面`then`方法执行中的错误，也更接近同步的写法（`try/catch`）。因此，建议总是使用`catch`方法，而不使用`then`方法的第二个参数
-
-```javascript
-const someAsyncThing = function() {
-  return new Promise(function(resolve, reject) {
-    // 下面一行会报错，因为x没有声明
-    resolve(x + 2);
-  });
-};
-
-someAsyncThing().then(function() {
-  console.log('everything is great');
-});
-
-setTimeout(() => { console.log(123) }, 2000);
-// Uncaught (in promise) ReferenceError: x is not defined
-// 123
-```
-
-上面代码中，`someAsyncThing`函数产生的 Promise 对象，内部有语法错误。浏览器运行到这一行，会打印出错误提示`ReferenceError: x is not defined`，但是不会退出进程、终止脚本执行，2 秒之后还是会输出`123`。这就是说，Promise 内部的错误不会影响到 Promise 外部的代码，通俗的说法就是“Promise 会吃掉错误”。
-
-这个脚本放在服务器执行，退出码就是`0`（即表示执行成功）。不过，Node 有一个`unhandledRejection`事件，专门监听未捕获的`reject`错误，上面的脚本会触发这个事件的监听函数，可以在监听函数里面抛出错误。
-
-```javascript
-process.on('unhandledRejection', function (err, p) {
-  throw err;
-});
-```
-
-上面代码中，`unhandledRejection`事件的监听函数有两个参数，第一个是错误对象，第二个是报错的 Promise 实例，它可以用来了解发生错误的环境信息。
-
-注意，Node 有计划在未来废除`unhandledRejection`事件。如果 Promise 内部有未捕获的错误，会直接终止进程，并且进程的退出码不为 0。
-
-再看下面的例子。
-
-```javascript
-const promise = new Promise(function (resolve, reject) {
-  resolve('ok');
-  setTimeout(function () { throw new Error('test') }, 0)
-});
-promise.then(function (value) { console.log(value) });
-// ok
-// Uncaught Error: test
-```
-
-上面代码中，Promise 指定在下一轮“事件循环”再抛出错误。到了那个时候，Promise 的运行已经结束了，所以这个错误是在 Promise 函数体外抛出的，会冒泡到最外层，成了未捕获的错误。
-
-一般总是建议，Promise 对象后面要跟`catch`方法，这样可以处理 Promise 内部发生的错误。`catch`方法返回的还是一个 Promise 对象，因此后面还可以接着调用`then`方法。
-
-```javascript
-const someAsyncThing = function() {
-  return new Promise(function(resolve, reject) {
-    // 下面一行会报错，因为x没有声明
-    resolve(x + 2);
-  });
-};
-
-someAsyncThing()
-.catch(function(error) {
-  console.log('oh no', error);
-})
-.then(function() {
-  console.log('carry on');
-});
-// oh no [ReferenceError: x is not defined]
-// carry on
-```
-
-上面代码运行完`catch`方法指定的回调函数，会接着运行后面那个`then`方法指定的回调函数。如果没有报错，则会跳过`catch`方法。直接输出 "curry on"
-
-```javascript
-Promise.resolve()
-.catch(function(error) {
-  console.log('oh no', error);
-})
-.then(function() {
-  console.log('carry on');
-});
-// carry on
-```
-
-上面的代码因为没有报错，跳过了`catch`方法，直接执行后面的`then`方法。此时，要是`then`方法里面报错，就与前面的`catch`无关了。
-
-```javascript
-const someAsyncThing = function() {
-  return new Promise(function(resolve, reject) {
-    // 下面一行会报错，因为x没有声明
-    resolve(x + 2);
-  });
-};
-
-someAsyncThing().then(function() {
-  return someOtherAsyncThing();
-}).catch(function(error) {
-  console.log('oh no', error);
-  // 下面一行会报错，因为 y 没有声明
-  y + 2;
-}).then(function() {
-  console.log('carry on');
-});
-// oh no [ReferenceError: x is not defined]
-```
-
-上面代码中，`catch`方法抛出一个错误，因为后面没有别的`catch`方法了，导致这个错误不会被捕获，也不会传递到外层。如果改写一下，结果就不一样了。
-
-```java
-someAsyncThing().then(function() {
-  return someOtherAsyncThing();
-}).catch(function(error) {
-  console.log('oh no', error);
-  // 下面一行会报错，因为y没有声明
-  y + 2;
-}).catch(function(error) {
-  console.log('carry on', error);
-});
-// oh no [ReferenceError: x is not defined]
-// carry on [ReferenceError: y is not defined]`
-```
-
-上面代码中，第二个`catch`方法用来捕获前一个`catch`方法抛出的错误。
-
-##  5. Promise.prototype.finally()
-
-`finally`方法用于指定不管 Promise 对象最后状态如何，都会执行的操作。该方法是 ES2018 引入标准的。
-
-```javascript
-promise
-.then(result => {···})
-.catch(error => {···})
-.finally(() => {···});
-```
-
-上面代码中，不管`promise`最后的状态，在执行完`then`或`catch`指定的回调函数以后，都会执行`finally`方法指定的回调函数。
-
-下面是一个例子，服务器使用 Promise 处理请求，然后使用`finally`方法关掉服务器。
-
-```javascript
-server.listen(port)
-  .then(function () {
-    // ...
-  })
-  .finally(server.stop);
-```
-
-`finally`方法的回调函数不接受任何参数，这意味着没有办法知道，前面的 Promise 状态到底是`fulfilled`还是`rejected`。这表明，`finally`方法里面的操作，应该是与状态无关的，不依赖于 Promise 的执行结果。
-
-`finally`本质上是`then`方法的特例。
-
-```javascript
-promise
-.finally(() => {
-  // 语句
-});
-// 等同于
-promise
-.then(
-  result => {
-    // 语句
-    return result;
-  },
-  error => {
-    // 语句
-    throw error;
-  }
+const clone2 = Object.assign(
+  Object.create(Object.getPrototypeOf(obj)),
+  obj
 );
+
+// 写法三
+const clone3 = Object.create(
+  Object.getPrototypeOf(obj),
+  Object.getOwnPropertyDescriptors(obj)
+)
 ```
 
-上面代码中，如果不使用`finally`方法，同样的语句需要为成功和失败两种情况各写一次。有了`finally`方法，则只需要写一次。
+上面代码中，写法一的 `_proto_` 属性在非浏览器的环境不一定部署，因此推荐使用写法二和写法三
 
-它实现也很简单。
-
-```javascript
-Promise.prototype.finally = function (callback) {
-  let P = this.constructor;
-  return this.then(
-    value  => P.resolve(callback()).then(() => value),
-    reason => P.resolve(callback()).then(() => { throw reason })
-  );
-};
-```
-
-上面代码中，不管前面的 Promise 是`fulfilled`还是`rejected`，都会执行回调函数`callback`。
-
-从上面的实现还可以看到，`finally`方法总是会返回原来的值。
+扩展运算符可以用于合并两个对象。
 
 ```javascript
-// resolve 的值是 undefined
-Promise.resolve(2).then(() => {}, () => {})
-
-// resolve 的值是 2
-Promise.resolve(2).finally(() => {})
-
-// reject 的值是 undefined
-Promise.reject(3).then(() => {}, () => {})
-
-// reject 的值是 3
-Promise.reject(3).finally(() => {})
-```
-
-## 6. Promise.all
-
-`Promise.all()`方法用于将多个 Promise 实例，包装成一个新的 Promise 实例。
-
-```javascript
-const p = Promise.all([p1, p2, p3]);
-```
-
-上面代码中，`Promise.all()`方法接受一个数组作为参数，`p1`、`p2`、`p3`都是 Promise 实例，如果不是，就会先调用下面讲到的`Promise.resolve`方法，将参数转为 Promise 实例，再进一步处理。另外，`Promise.all()`方法的参数可以不是数组，但必须具有 Iterator 接口，且返回的每个成员都是 Promise 实例。
-
-`p`的状态由`p1`、`p2`、`p3`决定，分成两种情况。
-
-（1）只有`p1`、`p2`、`p3`的状态都变成`fulfilled`，`p`的状态才会变成`fulfilled`，此时`p1`、`p2`、`p3`的返回值组成一个数组，传递给`p`的回调函数。
-
-（2）只要`p1`、`p2`、`p3`之中有一个被`rejected`，`p`的状态就变成`rejected`，此时第一个被`reject`的实例的返回值，会传递给`p`的回调函数。
-
-下面是一个具体的例子。
-
-```javascript
-// 生成一个Promise对象的数组
-const promises = [2, 3, 5, 7, 11, 13].map(function (id) {
-  return getJSON('/post/' + id + ".json");
-});
-
-Promise.all(promises).then(function (posts) {
-  // ...
-}).catch(function(reason){
-  // ...
-});
-```
-
-上面代码中，`promises`是包含 6 个 Promise 实例的数组，只有这 6 个实例的状态都变成`fulfilled`，或者其中有一个变为`rejected`，才会调用`Promise.all`方法后面的回调函数。
-
-下面是另一个例子。
-
-```javascript
-const databasePromise = connectDatabase();
-
-const booksPromise = databasePromise
-  .then(findAllBooks);
-
-const userPromise = databasePromise
-  .then(getCurrentUser);
-
-Promise.all([
-  booksPromise,
-  userPromise
-])
-.then(([books, user]) => pickTopRecommendations(books, user));
-```
-
-上面代码中，`booksPromise`和`userPromise`是两个异步操作，只有等到它们的结果都返回了，才会触发`pickTopRecommendations`这个回调函数。
-
-注意，如果作为参数的 Promise 实例，自己定义了`catch`方法，那么它一旦被`rejected`，并不会触发`Promise.all()`的`catch`方法。
-
-```javascript
-const p1 = new Promise((resolve, reject) => {
-  resolve('hello');
-})
-.then(result => result)
-.catch(e => e);
-
-const p2 = new Promise((resolve, reject) => {
-  throw new Error('报错了');
-})
-.then(result => result)
-.catch(e => e);
-
-Promise.all([p1, p2])
-.then(result => console.log(result))
-.catch(e => console.log(e));
-// ["hello", Error: 报错了]
-```
-
-上面代码中，`p1`会`resolved`，`p2`首先会`rejected`，但是`p2`有自己的`catch`方法，该方法返回的是一个新的 Promise 实例，`p2`指向的实际上是这个实例。该实例执行完`catch`方法后，也会变成`resolved`，导致`Promise.all()`方法参数里面的两个实例都会`resolved`，因此会调用`then`方法指定的回调函数，而不会调用`catch`方法指定的回调函数。
-
-如果`p2`没有自己的`catch`方法，就会调用`Promise.all()`的`catch`方法。
-
-```javascript
-const p1 = new Promise((resolve, reject) => {
-  resolve('hello');
-})
-.then(result => result);
-
-const p2 = new Promise((resolve, reject) => {
-  throw new Error('报错了');
-})
-.then(result => result);
-
-Promise.all([p1, p2])
-.then(result => console.log(result))
-.catch(e => console.log(e));
-// Error: 报错了
-```
-
-## 7. Promsie.race()
-
-`Promise.race()`方法同样是将多个 Promise 实例，包装成一个新的 Promise 实例。
-
-```javascript
-const p = Promise.race([p1, p2, p3]);
-```
-
-上面代码中，只要`p1`、`p2`、`p3`之中有一个实例率先改变状态，`p`的状态就跟着改变。那个率先改变的 Promise 实例的返回值，就传递给`p`的回调函数。
-
-`Promise.race()`方法的参数与`Promise.all()`方法一样，如果不是 Promise 实例，就会先调用下面讲到的`Promise.resolve()`方法，将参数转为 Promise 实例，再进一步处理。
-
-下面是一个例子，如果指定时间内没有获得结果，就将 Promise 的状态变为`reject`，否则变为`resolve`。
-
-```javascript
-const p = Promise.race([
-  fetch('/resource-that-may-take-a-while'),
-  new Promise(function (resolve, reject) {
-    setTimeout(() => reject(new Error('request timeout')), 5000)
-  })
-]);
-
-p
-.then(console.log)
-.catch(console.error);
-```
-
-上面代码中，如果 5 秒之内`fetch`方法无法返回结果，变量`p`的状态就会变为`rejected`，从而触发`catch`方法指定的回调函数。
-
-## 10.Promise.resolve()
-
-有时需要将现有对象转为 Promise 对象，`Promise.resolve()`方法就起到这个作用。
-
-```javascript
-const jsPromise = Promise.resolve($.ajax('whatever.json'));
-```
-
-上面代码将 jQuery 生成的`deferred`对象，转为一个新的 Promise 对象。
-
-`Promise.resolve()`等价于下面的写法。
-
-```javascript
-Promise.resolve('foo')
-// 等价于
-new Promise(resolve => resolve('foo'))
-```
-
-`Promise.resolve`方法的参数分成四种情况。
-
-**（1）参数是一个 Promise 实例**
-
-如果参数是 Promise 实例，那么`Promise.resolve`将不做任何修改、原封不动地返回这个实例。
-
-**（2）参数是一个`thenable`对象**
-
-`thenable`对象指的是具有`then`方法的对象，比如下面这个对象。
-
-```javascript
-let thenable = {
-    then: function(resolve, reject) {
-        resolve(42)
-    }
-}
-```
-
-`Promise.resolve`方法会将这个对象转为 Promise 对象，然后就立即执行`thenable`对象的`then`方法。
-
-```javascript
-let thenable = {
-  then: function(resolve, reject) {
-    resolve(42);
-  }
-};
-let p1 = Promise.resolve(thenable);
-p1.then(function(value) {
-  console.log(value)
-})
-```
-
-上面代码中，`thenable`对象的`then`方法执行后，对象`p1`的状态就变为`resolved`，从而立即执行最后那个`then`方法指定的回调函数，输出 42。
-
-**（3）参数不是具有`then`方法的对象，或根本就不是对象**
-
-如果参数是一个原始值，或者是一个不具有`then`方法的对象，则`Promise.resolve`方法返回一个新的 Promise 对象，状态为`resolved`。
-
-```javascript
-const p = Promise.resolve('Hello');
-
-p.then(function (s){
-  console.log(s)
-});
-// Hello
-```
-
-上面代码生成一个新的 Promise 对象的实例`p`。由于字符串`Hello`不属于异步操作（判断方法是字符串对象不具有 then 方法），返回 Promise 实例的状态从一生成就是`resolved`，所以回调函数会立即执行。`Promise.resolve`方法的参数，会同时传给回调函数。
-
-**（4）不带有任何参数**
-
-`Promise.resolve()`方法允许调用时不带参数，直接返回一个`resolved`状态的 Promise 对象。
-
-所以，如果希望得到一个 Promise 对象，比较方便的方法就是直接调用`Promise.resolve()`方法。
-
-```javascript
-const p = Promise.resolve();
-
-p.then(function () {
-  // ...
-});
-```
-
-上面代码的变量`p`就是一个 Promise 对象。
-
-需要注意的是，立即`resolve()`的 Promise 对象，是在本轮“事件循环”（event loop）的结束时执行，而不是在下一轮“事件循环”的开始时。
-
-```javascript
-setTimeout(function () {
-  console.log('three');
-}, 0);
-
-Promise.resolve().then(function () {
-  console.log('two');
-});
-
-console.log('one');
-
-// one
-// two
-// three
-```
-
-上面代码中，`setTimeout(fn, 0)`在下一轮“事件循环”开始时执行，`Promise.resolve()`在本轮“事件循环”结束时执行，`console.log('one')`则是立即执行，因此最先输出。
-
-## 11. Promise.reject()
-
-`Promise.reject(reason)`方法也会返回一个新的 Promise 实例，该实例的状态为`rejected`。
-
-```javascript
-const p = Promise.reject('出错了')
+let ab = { ...a, ...b };
 // 等同于
-const p = new Promise(resolve, reject) => reject('出错了')
-
-p.then(null, function(s) {
-    console.log(s)
-})
-// 出错了
+let ab = Object.assign({}, a, b);
 ```
 
-上面代码生成一个 Promise 对象的实例`p`，状态为`rejected`，回调函数会立即执行。
-
-注意，`Promise.reject()`方法的参数，会原封不动地作为`reject`的理由，变成后续方法的参数。这一点与`Promise.resolve`方法不一致。
+如果用户自定义的属性，放在扩展运算符后面，则扩展运算符内部的同名属性会被覆盖掉。
 
 ```javascript
-const thenable = {
-  then(resolve, reject) {
-    reject('出错了');
+let aWithOverrides = { ...a, x: 1, y: 2 };
+// 等同于
+let aWithOverrides = { ...a, ...{ x: 1, y: 2 } };
+// 等同于
+let x = 1, y = 2, aWithOverrides = { ...a, x, y };
+// 等同于
+let aWithOverrides = Object.assign({}, a, { x: 1, y: 2 });
+```
+
+ 上面代码中，`a`对象的`x`属性和`y`属性，拷贝到新对象后会被覆盖掉。 
+
+这用来修改现有对象部分的属性就很方便了。
+
+```javascript
+let newVersion = {
+  ...previousVersion,
+  name: 'New Name' // Override the name property
+};
+```
+
+ 上面代码中，`newVersion`对象自定义了`name`属性，其他属性全部复制自`previousVersion`对象。 
+
+如果把自定义属性放在扩展运算符前面，就变成了设置新对象的默认属性值。
+
+```javascript
+let aWithDefaults = { x: 1, y: 2, ...a };
+// 等同于
+let aWithDefaults = Object.assign({}, { x: 1, y: 2 }, a);
+// 等同于
+let aWithDefaults = Object.assign({ x: 1, y: 2 }, a);
+```
+
+ 与数组的扩展运算符一样，对象的扩展运算符后面可以跟表达式。 
+
+```javascript
+const obj = {
+  ...(x > 1 ? {a: 1} : {}),
+  b: 2,
+};
+```
+
+ 扩展运算符的参数对象之中，如果有取值函数`get`，这个函数是会执行的。 
+
+```javascript
+let a = {
+  get x() {
+    throw new Error('not throw yet');
   }
-};
-
-Promise.reject(thenable)
-.catch(e => {
-  console.log(e === thenable)
-})
-// true
-```
-
-上面代码中，`Promise.reject`方法的参数是一个`thenable`对象，执行以后，后面`catch`方法的参数不是`reject`抛出的“出错了”这个字符串，而是`thenable`对象。
-
-## 12. 应用
-
-### 加载图片
-
-我们可以将图片的加载写成一个`Promise`，一旦加载完成，`Promise`的状态就发生变化。
-
-```javascript
-const preloadImage = function (path) {
-  return new Promise(function (resolve, reject) {
-    const image = new Image();
-    image.onload  = resolve;
-    image.onerror = reject;
-    image.src = path;
-  });
-};
-```
-
-### Generator 函数与 Promise 的结合
-
-使用 Generator 函数管理流程，遇到异步操作的时候，通常返回一个`Promise`对象。
-
-```javascript
-function getFoo () {
-  return new Promise(function (resolve, reject){
-    resolve('foo');
-  });
 }
 
-const g = function* () {
-  try {
-    const foo = yield getFoo();
-    console.log(foo);
-  } catch (e) {
-    console.log(e);
-  }
-};
-function run (generator) {
-  const it = generator();
+let aWithXGetter = { ...a }; // 报错
+```
 
-  function go(result) {
-    if (result.done) return result.value;
+ 上面例子中，取值函数`get`在扩展`a`对象时会自动执行，导致报错。 
 
-    return result.value.then(function (value) {
-      return go(it.next(value));
-    }, function (error) {
-      return go(it.throw(error));
-    });
-  }
-  console.log(it)
-  console.log(it.next())
-  go(it.next());
+
+
+## 7. 链判断运算符
+
+ 编程实务中，如果读取对象内部的某个属性，往往需要判断一下该对象是否存在。比如，要读取`message.body.user.firstName`，安全的写法是写成下面这样。 
+
+```javascript
+// 错误的写法
+const  firstName = message.body.user.firstName;
+
+// 正确的写法
+const firstName = (message
+  && message.body
+  && message.body.user
+  && message.body.user.firstName) || 'default';
+```
+
+上面例子中，`firstName`属性在对象的第四层，所以需要判断四次，每一层是否有值。
+
+三元运算符`?:`也常用于判断对象是否存在。
+
+```javascript
+const fooInput = myForm.querySelector('input[name=foo]')
+const fooValue = fooInput ? fooInput.value : undefined
+```
+
+上面例子中，必须先判断`fooInput`是否存在，才能读取`fooInput.value`。
+
+这样的层层判断非常麻烦，因此 [ES2020](https://github.com/tc39/proposal-optional-chaining) 引入了“链判断运算符”（optional chaining operator）`?.`，简化上面的写法。
+
+```javascript
+const firstName = message?.body?.user?.firstName || 'default';
+const fooValue = myForm.querySelector('input[name=foo]')?.value
+```
+
+ 上面代码使用了`?.`运算符，直接在链式调用的时候判断，左侧的对象是否为`null`或`undefined`。如果是的，就不再往下运算，而是返回`undefined`。 
+
+ 下面是判断对象方法是否存在，如果存在就立即执行的例子。 
+
+```javascript
+iterator.return?.()
+```
+
+上面代码中，`iterator.return`如果有定义，就会调用该方法，否则`iterator.return`直接返回`undefined`，不再执行`?.`后面的部分。
+
+ 对于那些可能没有实现的方法，这个运算符尤其有用。 
+
+```javascript
+if (myForm.checkValidity?.() === false) {
+  // 表单校验失败
+  return;
 }
 ```
 
-上面代码的 Generator 函数`g`之中，有一个异步操作`getFoo`，它返回的就是一个`Promise`对象。函数`run`用来处理这个`Promise`对象，并调用下一个`next`方法。
+ 上面代码中，老式浏览器的表单可能没有`checkValidity`这个方法，这时`?.`运算符就会返回`undefined`，判断语句就变成了`undefined === false`，所以就会跳过下面的代码。 
 
-## 13. Promise.try()
+链判断运算符有三种用法。
 
-实际开发中，经常遇到一种情况：不知道或者不想区分，函数`f`是同步函数还是异步操作，但是想用 Promise 来处理它。因为这样就可以不管`f`是否包含异步操作，都用`then`方法指定下一步流程，用`catch`方法处理`f`抛出的错误。一般就会采用下面的写法。
+- `obj?.prop` // 对象属性
+- `obj?.[expr]` // 同上
+- `func?.(...args)` // 函数或对象方法的调用
 
-```javascript
-Promise.resolve().then(f)
+ 下面是`obj?.[expr]`用法的一个例子。 
+
+```bash
+let hex = "#C0FFEE".match(/#([A-Z]+)/i)?.[1];
 ```
 
-上面的写法有一个缺点，就是如果`f`是同步函数，那么它会在本轮事件循环的末尾执行。
+ 上面例子中，字符串的`match()`方法，如果没有发现匹配会返回`null`，如果发现匹配会返回一个数组，`?.`运算符起到了判断作用。 
+
+ 下面是`?.`运算符常见形式，以及不使用该运算符时的等价形式。 
 
 ```javascript
-const f = () => console.log('now');
-Promise.resolve().then(f);
-console.log('next');
-// next
-// now
+a?.b
+// 等同于
+a == null ? undefined : a.b
+
+a?.[x]
+// 等同于
+a == null ? undefined : a[x]
+
+a?.b()
+// 等同于
+a == null ? undefined : a.b()
+
+a?.()
+// 等同于
+a == null ? undefined : a()
 ```
 
-上面代码中，函数`f`是同步的，但是用 Promise 包装了以后，就变成异步执行了。
+ 上面代码中，特别注意后两种形式，如果`a?.b()`里面的`a.b`不是函数，不可调用，那么`a?.b()`是会报错的。`a?.()`也是如此，如果`a`不是`null`或`undefined`，但也不是函数，那么`a?.()`会报错。 
 
-那么有没有一种方法，让同步函数同步执行，异步函数异步执行，并且让它们具有统一的 API 呢？回答是可以的，并且还有两种写法。第一种写法是用`async`函数来写。
+ 使用这个运算符，有几个注意点。 
+
+**（1）短路机制**
+
+`?.` 运算符相当于一种短路机制，只要不满足条件，就不再往下执行。
 
 ```javascript
-const f = () => console.log('now');
-(async () => f())();
-console.log('next');
-// now
-// next
+a?.[++x]
+// 等同于
+a == null ? undefined : a[++x]
 ```
 
-上面代码中，第二行是一个立即执行的匿名函数，会立即执行里面的`async`函数，因此如果`f`是同步的，就会得到同步的结果；如果`f`是异步的，就可以用`then`指定下一步，就像下面的写法。
+ 上面代码中，如果`a`是`undefined`或`null`，那么`x`不会进行递增运算。也就是说，链判断运算符一旦为真，右侧的表达式就不再求值。
+
+**（2）delete 运算符**
 
 ```javascript
-(async () => f())()
-.then(...)
+delete a?.b
+// 等同于
+a == null ? undefined : delete a.b
 ```
 
-需要注意的是，`async () => f()`会吃掉`f()`抛出的错误。所以，如果想捕获错误，要使用`promise.catch`方法。
+ 上面代码中，如果`a`是`undefined`或`null`，会直接返回`undefined`，而不会进行`delete`运算。 
+
+**（3）括号的影响**
+
+如果属性链有圆括号，链判断运算符对圆括号外部没有影响，只对圆括号内部有影响。
 
 ```javascript
-(async () => f())()
-.then(...)
-.catch(...)
+(a?.b).c
+// 等价于
+(a == null ? undefined : a.b).c
 ```
 
-第二种写法是使用`new Promise()`
+上面代码中，`?.`对圆括号外部没有影响，不管`a`对象是否存在，圆括号后面的`.c`总是会执行。
+
+**`一般来说，使用（?.）运算符的场合，不应该使用圆括号。`**
+
+**（4） 报错场合**
 
 ```javascript
-const f = () => console.log('now');
-(
-  () => new Promise(
-    resolve => resolve(f())
-  )
-)();
-console.log('next');
-// now
-// next
+// 构造函数
+new a?.()
+new a?.b()
+
+// 链判断运算符的右侧有模板字符串
+a?.`{b}`
+a?.b`{c}`
+
+// 链判断运算符的左侧是 super
+super?.()
+super?.foo
+
+// 链运算符用于赋值运算符左侧
+a?.b = c
 ```
 
-上面代码也是使用立即执行的匿名函数，执行`new Promise()`。这种情况下，同步函数也是同步执行的。
+**（5）右侧不得为十进制数值**
+
+ 为了保证兼容以前的代码，允许`foo?.3:0`被解析成`foo ? .3 : 0`，因此规定如果`?.`后面紧跟一个十进制数字，那么`?.`不再被看成是一个完整的运算符，而会按照三元运算符进行处理，也就是说，那个小数点会归属于后面的十进制数字，形成一个小数。 
+
+
+
+## 8. Null 判断运算符
+
+读取对象属性的时候，如果某个属性的值是 `null` 或 `undefined`，有时候需要为他们指定默认值。常见做法是通过 `||` 运算符指定默认值。
+
+```javascript
+const headerText = response.settings.headerText || 'Hello, world!';
+const animationDuration = response.settings.animationDuration || 300;
+const showSplashScreen = response.settings.showSplashScreen || true;
+```
+
+ 上面的三行代码都通过`||`运算符指定默认值，但是这样写是错的。开发者的原意是，只要属性的值为`null`或`undefined`，默认值就会生效，但是属性的值如果为空字符串或`false`或`0`，默认值也会生效。 
+
+ 为了避免这种情况，[ES2020](https://github.com/tc39/proposal-nullish-coalescing) 引入了一个新的 Null 判断运算符`??`。它的行为类似`||`，但是只有运算符左侧的值为`null`或`undefined`时，才会返回右侧的值。 
+
+```javascript
+const headerText = response.settings.headerText ?? 'Hello, world!';
+const animationDuration = response.settings.animationDuration ?? 300;
+const showSplashScreen = response.settings.showSplashScreen ?? true;
+```
+
+上面代码中，默认值只有在左侧属性值为`null`或`undefined`时，才会生效。
+
+这个运算符的一个目的，就是跟链判断运算符`?.`配合使用，为`null`或`undefined`的值设置默认值。
+
+```javascript
+const animationDuration = response.settings?.animationDuration ?? 300;
+```
+
+上面代码中，`response.settings` 如果是 `null` 或 `undefined`，就会返回默认值 300。
+
+这个运算符很适合判断函数参数是否赋值。
+
+```javascript
+function Component(props) {
+    const enable = props.enabled ?? true
+    //...
+}
+```
+
+上面代码判断 `props` 参数的 `enabled` 属性是否赋值，基本等同于下面的写法
+
+```javascript
+function Component(props) {
+  const {
+    enabled: enable = true,
+  } = props;
+  // …
+}
+```
+
+ `??`有一个运算优先级问题，它与`&&`和`||`的优先级孰高孰低。现在的规则是，如果多个逻辑运算符一起使用，必须用括号表明优先级，否则会报错。 
+
+```javascript
+// 报错
+lhs && middle ?? rhs
+lhs ?? middle && rhs
+lhs || middle ?? rhs
+lhs ?? middle || rhs
+```
+
+ 上面四个表达式都会报错，必须加入表明优先级的括号 。
+
+```javascript
+(lhs && middle) ?? rhs;
+lhs && (middle ?? rhs);
+
+(lhs ?? middle) && rhs;
+lhs ?? (middle && rhs);
+
+(lhs || middle) ?? rhs;
+lhs || (middle ?? rhs);
+
+(lhs ?? middle) || rhs;
+lhs ?? (middle || rhs);
+```
 

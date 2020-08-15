@@ -1,5 +1,5 @@
 
-# let 和 const 命令
+# 1. let 和 const 命令
 
 >1. let命令
 >2. 块级作用域

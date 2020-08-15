@@ -148,7 +148,18 @@ module.exports = {
     'ECMAScript10',
     'ECMAScript11',
     'ECMAScript12',
-    'ECMAScript13'
+    'ECMAScript13',
+    'ECMAScript14',
+    'ECMAScript15',
+    'ECMAScript16',
+    'ECMAScript17',
+    'ECMAScript18',
+    'ECMAScript19',
+    'ECMAScript20',
+    'ECMAScript21',
+    'ECMAScript22',
+    'ECMAScript23',
+    'ECMAScript24',
   ],
   '/notes/Markdown/': [
     'markdown1',
@@ -210,6 +221,13 @@ module.exports = {
     'typescript18'
   ],
   '/notes/commonMethods/': [
-    
+    'common1',
+    'common2',
+    'common3',
+    'common4'
+  ],
+  '/notes/problem/': [
+    'deep',
+    'element'
   ]
 }

@@ -1,716 +1,858 @@
-# async 函数
+# 10. 对象的新增方法
 
-> 1. 含义
-> 2. 基本用法
-> 3. 语法
-> 4. async 函数的实现原理
-> 5. 与其他异步处理方法的比较
-> 6. 实例：按顺序完成异步操作
-> 7. 顶层 await
+> 1. Object.is()
+> 2. Object.assign()
+> 3. Object.getOwnPropertyDescriptors()
+> 4. \__proto__ 属性， Object.setPrototypeOf(), Object.getPrototypeOf()
+> 5. Object.keys(),  Object.values(), Object.entries()
+> 6. Object.fromEntries()
 
-## 1. 含义
 
-ES2017 标准引入了 async 函数，使得异步操作变得更加方便。
 
-async 函数是什么？一句话，它就是 Generator 函数的语法糖。
+## 1. Object.is()
 
-前文有一个 Generator 函数，依次读取两个文件。
+ES5 比较两个值是否相等，只有两个运算符：相等运算符（`==`）和严格相等运算符（`==`）。它们都有缺点，前者会自动转换数据类型，后者的 `NaN` 不等于自身，以及 `+0` 等于 `-0` 。JavaScript 缺乏一种算法，在所有环境中，只要两个值是一样的，它们就应该相等。
+
+ ES6 提出“Same-value equality”（同值相等）算法，用来解决这个问题。`Object.is`就是部署这个算法的新方法。它用来比较两个值是否严格相等，与严格比较运算符（===）的行为基本一致。 
 
 ```javascript
-const fs = require('fs');
+Object.is('foo', 'foo')
+// true
 
-const readFile = function (fileName) {
-  return new Promise(function (resolve, reject) {
-    fs.readFile(fileName, function(error, data) {
-      if (error) return reject(error);
-      resolve(data);
-    });
-  });
-};
-
-const gen = function* () {
-  const f1 = yield readFile('/etc/fstab');
-  const f2 = yield readFile('/etc/shells');
-  console.log(f1.toString());
-  console.log(f2.toString());
-};
+Object.is({}, {})
+// false
 ```
 
-上面代码的函数`gen`可以写成`async`函数，就是下面这样。
+不同之处只有两个：一是 `+0` 不等于 `-0`，二是 `NaN` 等于自身。
 
 ```javascript
-const asyncReadFile = async function () {
-  const f1 = await readFile('/etc/fstab');
-  const f2 = await readFile('/etc/shells');
-  console.log(f1.toString());
-  console.log(f2.toString());
++0 === -0 //true
+NaN === NaN // false
+
+Object.is(+0, -0) // false
+Object.is(NaN, NaN) // true
+```
+
+ES5 可以通过下面的代码，部署 `Object.is`
+
+```javascript
+Object.defineProperty(Object, 'is', {
+    value: function(x, y) {
+        if (x === y) {
+            // 针对 +0 不等于 -0 的情况
+            return x !== 0 || 1 / x === 1 / y
+        }
+        // 针对 NaN 的情况
+        return x !== x && y !== y
+    },
+    configurable: true,
+    enumerable: false,
+    writable: true
+})
+```
+
+
+
+## 2. Object.assign()
+
+### 基本用法
+
+`Object.assign()` 方法用于对象的合并，将源对象（source）的所有可枚举属性，复制到目标对象（target）。
+
+```javascript
+const target = { a: 1 };
+
+const source1 = { b: 2 };
+const source2 = { c: 3 };
+
+Object.assign(target, source1, source2)
+target // { a: 1, b: 2, c: 3}
+```
+
+`Object.assign()` 方法的第一个参数是目标对象，后面的参数都是源对象。
+
+注意，如果目标对象与源对象有同名属性，或多个源对象有同名属性，则后面的属性会覆盖前面的属性。
+
+```javascript
+const target = { a: 1, b: 1 };
+
+const source1 = { b: 2, c: 2 };
+const source2 = { c: 3 };
+
+Object.assign(target, source1, source2);
+target // {a:1, b:2, c:3}
+```
+
+ 如果只有一个参数，`Object.assign()`会直接返回该参数。 
+
+```javascript
+const obj = {a: 1};
+Object.assign(obj) === obj // true
+```
+
+如果该参数不是对象，则会先转成对象，然后返回。
+
+```javascript
+typeof Object.assign(2) // 'Object'
+```
+
+ 由于`undefined`和`null`无法转成对象，所以如果它们作为参数，就会报错。 
+
+```javascript
+Object.assign(undefined) // 报错
+Object.assign(null) // 报错
+```
+
+如果非对象参数出现在源对象的位置（即非首参数），那么处理规则有所不同。首先，这些参数都会转成对象，如果无法转成对象，就会跳过。这意味着，如果 `undefined` 和 `null` 不在首参数，就不会报错。
+
+```javascript
+let obj = {a: 1}
+Object.assign(obj, undefined) === obj // true
+Object.assign(obj, null) === obj // true
+```
+
+其他类型的值（即数值、字符串和布尔值）不在首参数，也不会报错。但是，除了字符串会以数组形式，拷贝入目标对象，其他值都不会产生效果。
+
+```javascript
+const v1 = 'abc'
+const v2 = true
+const v3 = 10
+
+const obj = Object.assign({}, v1, v2, v3)
+console.log(obj) //  { "0": "a", "1": "b", "2": "c" }
+```
+
+ 上面代码中，`v1`、`v2`、`v3`分别是字符串、布尔值和数值，结果只有字符串合入目标对象（以字符数组的形式），数值和布尔值都会被忽略。这是因为只有字符串的包装对象，会产生可枚举属性。 
+
+```javascript
+Object(true) // {[[PrimitiveValue]]: true}
+Object(10)  //  {[[PrimitiveValue]]: 10}
+Object('abc') // {0: "a", 1: "b", 2: "c", length: 3, [[PrimitiveValue]]: "abc"}
+```
+
+ 上面代码中，布尔值、数值、字符串分别转成对应的包装对象，可以看到它们的原始值都在包装对象的内部属性`[[PrimitiveValue]]`上面，这个属性是不会被`Object.assign()`拷贝的。只有字符串的包装对象，会产生可枚举的实义属性，那些属性则会被拷贝。 
+
+`Object.assign()` 拷贝的属性是有限制的，只拷贝源对象的自身属性，（不拷贝继承属性），也不拷贝不可枚举的属性（`enumerable: false`）。
+
+```javascript
+Object.assign({b: 'c'}, Object.defineProperty({}, 'invisible', {
+    enumerable: false,
+    value: 'hello'
+}))
+// {b: 'c'}
+```
+
+上面代码中，`Object.assign()`要拷贝的对象只有一个不可枚举属性`invisible`，这个属性并没有被拷贝进去。
+
+属性名为 Symbol 值的属性，也会被`Object.assign()`拷贝。
+
+```javascript
+Object.assign({ a: 'b' }, { [Symbol('c')]: 'd' })
+// { a: 'b', Symbol(c): 'd' }
+```
+
+### 注意点
+
+#### 1. 浅拷贝
+
+`Object.assign()` 方法实行的是浅拷贝，而不是深拷贝。也就是说， 如果源对象某个属性的值是对象，那么目标对象拷贝得到的是这个对象的引用。 
+
+```javascript
+const obj1 = {a: {b: 1}};
+const obj2 = Object.assign({}, obj1);
+
+obj1.a.b = 2;
+obj2.a.b // 2
+```
+
+ 上面代码中，源对象`obj1`的`a`属性的值是一个对象，`Object.assign()`拷贝得到的是这个对象的引用。这个对象的任何变化，都会反映到目标对象上面。 
+
+#### 2. 同名属性的替换
+
+对于这种嵌套的对象，一旦遇到同名属性，`Object.assign()`的处理方法是替换，而不是添加。
+
+```javascript
+cosnt target = { a: { b: 'c', d: 'e'}}
+const source = { a: { b: 'hello'}}
+Object.assign(target, source)
+// { a: { b: 'hello' } }
+```
+
+ 上面代码中，`target`对象的`a`属性被`source`对象的`a`属性整个替换掉了，而不会得到`{ a: { b: 'hello', d: 'e' } }`的结果。这通常不是开发者想要的，需要特别小心。 
+
+ 一些函数库提供`Object.assign()`的定制版本（比如 Lodash 的`_.defaultsDeep()`方法），可以得到深拷贝的合并。 
+
+#### 3. 数组的处理
+
+`Object.assign()` 可以用来处理数组，但是会把数组视为对象。
+
+```javascript
+Object.assign([1, 2, 3], [4, 5])
+// [4, 5, 3]
+```
+
+ 上面代码中，`Object.assign()`把数组视为属性名为 0、1、2 的对象，因此源数组的 0 号属性`4`覆盖了目标数组的 0 号属性`1`。 
+
+#### 4. 取值函数的处理
+
+`Object.assign()` 只能进行值的复制，如果要复制的值是一个取值函数，那么将求值后再赋值。
+
+```javascript
+const source = {
+  get foo() { return 1 }
 };
+const target = {};
+
+Object.assign(target, source)
+// { foo: 1 }
 ```
 
-一比较就会发现，`async`函数就是将 Generator 函数的星号（`*`）替换成`async`，将`yield`替换成`await`，仅此而已。
+ 上面代码中，`source`对象的`foo`属性是一个取值函数，`Object.assign()`不会复制这个取值函数，只会拿到值以后，将这个值复制过去。 
 
-`async`函数对 Generator 函数的改进，体现在以下四点。
 
-（1）内置执行器。
 
-Generator 函数的执行必须靠执行器，所以才有了`co`模块，而`async`函数自带执行器。也就是说，`async`函数的执行，与普通函数一模一样，只要一行。
+### 常见用途
 
-```javascript
-asyncReadFile();
-```
+`Object.assign()` 方法有很多好处
 
-上面的代码调用了`asyncReadFile`函数，然后它就会自动执行，输出最后结果。这完全不像 Generator 函数，需要调用`next`方法，或者用`co`模块，才能真正执行，得到最后结果。
-
-（2）更好的语义。
-
-`async`和`await`，比起星号和`yield`，语义更清楚了。`async`表示函数里有异步操作，`await`表示紧跟在后面的表达式需要等待结果。
-
-（3）更广的适用性。
-
-`co`模块约定，`yield`命令后面只能是 Thunk 函数或 Promise 对象，而`async`函数的`await`命令后面，可以是 Promise 对象和原始类型的值（数值、字符串和布尔值，但这时会自动转成立即 resolved 的 Promise 对象）。
-
-（4）返回值是 Promise。
-
-`async`函数的返回值是 Promise 对象，这比 Generator 函数的返回值是 Iterator 对象方便多了。你可以用`then`方法指定下一步的操作。
-
-进一步说，`async`函数完全可以看作多个异步操作，包装成的一个 Promise 对象，而`await`命令就是内部`then`命令的语法糖。
-
-## 2. 基本用法
-
-`async`函数返回一个 Promise 对象，可以使用`then`方法添加回调函数。当函数执行的时候，一旦遇到`await`就会先返回，等到异步操作完成，再接着执行函数体内后面的语句。
+#### 1. 为对象添加属性
 
 ```javascript
-async function getStockPriceByName(name) {
-  const symbol = await getStockSymbol(name);
-  const stockPrice = await getStockPrice(symbol);
-  return stockPrice;
+class Point {
+  constructor(x, y) {
+    Object.assign(this, {x, y});
+  }
 }
+```
 
-getStockPriceByName('goog').then(function (result) {
-  console.log(result);
+ 上面方法通过`Object.assign()`方法，将`x`属性和`y`属性添加到`Point`类的对象实例。 
+
+#### 2. 为对象添加方法
+
+```javascript
+Object.assign(SomeClass.prototype, {
+  someMethod(arg1, arg2) {
+    ···
+  },
+  anotherMethod() {
+    ···
+  }
 });
+
+// 等同于下面的写法
+SomeClass.prototype.someMethod = function (arg1, arg2) {
+  ···
+};
+SomeClass.prototype.anotherMethod = function () {
+  ···
+};
 ```
 
-上面代码是一个获取股票报价的函数，函数前面的`async`关键字，表明该函数内部有异步操作。调用该函数时，会立即返回一个`Promise`对象。
+上面代码使用了对象属性的简洁表示法，直接将两个函数放在大括号中，再使用`assign()`方法添加到`SomeClass.prototype`之中。
 
-下面是另一个例子，指定多少毫秒后输出一个值。
+#### 3. 克隆对象
 
 ```javascript
-function timeout(ms) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
+function clone(origin) {
+  return Object.assign({}, origin);
 }
-
-async function asyncPrint(value, ms) {
-  await timeout(ms);
-  console.log(value);
-}
-
-asyncPrint('hello world', 50);
 ```
 
-上面代码指定 50 毫秒以后，输出`hello world`。
+上面代码将原始对象拷贝到一个空对象，就得到了原始对象的克隆。
 
-由于`async`函数返回的是 Promise 对象，可以作为`await`命令的参数。所以，上面的例子也可以写成下面的形式。
+不过，采用这种方法克隆，只能克隆原始对象自身的值，不能克隆它继承的值。如果想要保持继承链，可以采用下面的代码。
 
 ```javascript
-async function timeout(ms) {
-  await new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
+function clone(origin) {
+  let originProto = Object.getPrototypeOf(origin);
+  return Object.assign(Object.create(originProto), origin);
 }
-
-async function asyncPrint(value, ms) {
-  await timeout(ms);
-  console.log(value);
-}
-
-asyncPrint('hello world', 50);
 ```
 
-async 函数有多种使用形式。
+#### 4. 合并多个对象
+
+将多个对象合并到某个对象。
 
 ```javascript
-// 函数声明
-async function foo() {}
+const merge =
+  (target, ...sources) => Object.assign(target, ...sources);
+```
 
-// 函数表达式
-const foo = async function () {};
+如果希望合并后返回一个新对象，可以改写上面函数，对一个空对象合并。
 
-// 对象的方法
-let obj = { async foo() {} };
-obj.foo().then(...)
+```javascript
+const merge =
+  (...sources) => Object.assign({}, ...sources);
+```
 
-// Class 的方法
-class Storage {
-  constructor() {
-    this.cachePromise = caches.open('avatars');
+#### 5. 为属性指定默认值
+
+```javascript
+const DEFAULTS = {
+  logLevel: 0,
+  outputFormat: 'html'
+};
+
+function processContent(options) {
+  options = Object.assign({}, DEFAULTS, options);
+  console.log(options);
+  // ...
+}
+```
+
+ 上面代码中，`DEFAULTS`对象是默认值，`options`对象是用户提供的参数。`Object.assign()`方法将`DEFAULTS`和`options`合并成一个新对象，如果两者有同名属性，则`options`的属性值会覆盖`DEFAULTS`的属性值。 
+
+ 注意，由于存在浅拷贝的问题，`DEFAULTS`对象和`options`对象的所有属性的值，最好都是简单类型，不要指向另一个对象。否则，`DEFAULTS`对象的该属性很可能不起作用。 
+
+```javascript
+const DEFAULTS = {
+  url: {
+    host: 'example.com',
+    port: 7070
+  },
+};
+
+processContent({ url: {port: 8000} })
+// {
+//   url: {port: 8000}
+// }
+```
+
+ 上面代码的原意是将`url.port`改成 8000，`url.host`不变。实际结果却是`options.url`覆盖掉`DEFAULTS.url`，所以`url.host`就不存在了。 
+
+
+
+## 3. Object.getOwnPropertyDescriptors()
+
+ES5 的 `Object.getOwnPropertyDescriptor()` 方法会返回某个对象属性的描述对象（descriptor）。ES2017 引入了 `Object.getOwnPropertyDescriptors()` 方法，返回指定对象所有自身属性（非继承属性）的描述对象。
+
+```javascript
+const obj = {
+    foo: 123,
+    get bar() { return 'abc' }
+}
+Object.getOwnPropertyDescriptors(obj)
+// { foo:
+//    { value: 123,
+//      writable: true,
+//      enumerable: true,
+//      configurable: true },
+//   bar:
+//    { get: [Function: get bar],
+//      set: undefined,
+//      enumerable: true,
+//      configurable: true } }
+```
+
+ 上面代码中，`Object.getOwnPropertyDescriptors()`方法返回一个对象，所有原对象的属性名都是该对象的属性名，对应的属性值就是该属性的描述对象。 
+
+ 该方法的实现非常容易。 
+
+```javascript
+function getOwnPropertyDescriptors(obj) {
+  const result = {};
+  for (let key of Reflect.ownKeys(obj)) {
+    result[key] = Object.getOwnPropertyDescriptor(obj, key);
   }
+  return result;
+}
+```
 
-  async getAvatar(name) {
-    const cache = await this.cachePromise;
-    return cache.match(`/avatars/${name}.jpg`);
+ 该方法的引入目的，主要是为了解决`Object.assign()`无法正确拷贝`get`属性和`set`属性的问题。 
+
+```javascript
+const source = {
+  set foo(value) {
+    console.log(value);
   }
-}
+};
 
-const storage = new Storage();
-storage.getAvatar('jake').then(…);
+const target1 = {};
+Object.assign(target1, source);
 
-// 箭头函数
-const foo = async () => {};
+Object.getOwnPropertyDescriptor(target1, 'foo')
+// { value: undefined,
+//   writable: true,
+//   enumerable: true,
+//   configurable: true }
 ```
 
-## 3. 语法
+上面代码中，`source`对象的`foo`属性的值是一个赋值函数，`Object.assign`方法将这个属性拷贝给`target1`对象，结果该属性的值变成了`undefined`。这是因为`Object.assign`方法总是拷贝一个属性的值，而不会拷贝它背后的赋值方法或取值方法。
 
-`async`函数的语法规则总体上比较简单，难点是错误处理机制。
-
-### 返回 Promise 对象
-
-`async`函数返回一个 Promise 对象。
-
-`async`函数内部`return`语句返回的值，会成为`then`方法回调函数的参数。
+这时，`Object.getOwnPropertyDescriptors()`方法配合`Object.defineProperties()`方法，就可以实现正确拷贝。
 
 ```javascript
-async function f() {
-  return 'hello world';
-}
+const source = {
+  set foo(value) {
+    console.log(value);
+  }
+};
 
-f().then(v => console.log(v))
-// "hello world"
+const target2 = {};
+Object.defineProperties(target2, Object.getOwnPropertyDescriptors(source));
+Object.getOwnPropertyDescriptor(target2, 'foo')
+// { get: undefined,
+//   set: [Function: set foo],
+//   enumerable: true,
+//   configurable: true }
 ```
 
-上面代码中，函数`f`内部`return`命令返回的值，会被`then`方法回调函数接收到。
-
-`async`函数内部抛出错误，会导致返回的 Promise 对象变为`reject`状态。抛出的错误对象会被`catch`方法回调函数接收到。
+ 上面代码中，两个对象合并的逻辑可以写成一个函数。 
 
 ```javascript
-async function f() {
-  throw new Error('出错了');
-}
-
-f().then(
-  v => console.log(v),
-  e => console.log(e)
-)
-// Error: 出错了
+const shallowMerge = (target, source) => Object.defineProperties(
+  target,
+  Object.getOwnPropertyDescriptors(source)
+);
 ```
 
-### Promise 对象的状态变化
+ `Object.getOwnPropertyDescriptors()`方法的另一个用处，是配合`Object.create()`方法，将对象属性克隆到一个新对象。这属于浅拷贝。 
 
-`async`函数返回的 Promise 对象，必须等到内部所有`await`命令后面的 Promise 对象执行完，才会发生状态改变，除非遇到`return`语句或者抛出错误。也就是说，只有`async`函数内部的异步操作执行完，才会执行`then`方法指定的回调函数。
+```javascript
+const clone = Object.create(Object.getPrototypeOf(obj),
+  Object.getOwnPropertyDescriptors(obj));
+
+// 或者
+
+const shallowClone = (obj) => Object.create(
+  Object.getPrototypeOf(obj),
+  Object.getOwnPropertyDescriptors(obj)
+);
+```
+
+上面代码会克隆对象`obj`。
+
+另外，`Object.getOwnPropertyDescriptors()`方法可以实现一个对象继承另一个对象。以前，继承另一个对象，常常写成下面这样。
+
+```javascript
+const obj = {
+  __proto__: prot,
+  foo: 123,
+};
+```
+
+ ES6 规定`__proto__`只有浏览器要部署，其他环境不用部署。如果去除`__proto__`，上面代码就要改成下面这样。 
+
+```javascript
+const obj = Object.create(prot);
+obj.foo = 123;
+
+// 或者
+
+const obj = Object.assign(
+  Object.create(prot),
+  {
+    foo: 123,
+  }
+);
+```
+
+ 有了`Object.getOwnPropertyDescriptors()`，我们就有了另一种写法。 
+
+```javascript
+const obj = Object.create(
+  prot,
+  Object.getOwnPropertyDescriptors({
+    foo: 123,
+  })
+);
+```
+
+ `Object.getOwnPropertyDescriptors()`也可以用来实现 Mixin（混入）模式。 
+
+```javascript
+let mix = (object) => ({
+  with: (...mixins) => mixins.reduce(
+    (c, mixin) => Object.create(
+      c, Object.getOwnPropertyDescriptors(mixin)
+    ), object)
+});
+
+// multiple mixins example
+let a = {a: 'a'};
+let b = {b: 'b'};
+let c = {c: 'c'};
+let d = mix(c).with(a, b);
+
+d.c // "c"
+d.b // "b"
+d.a // "a"
+```
+
+上面代码返回一个新的对象`d`，代表了对象`a`和`b`被混入了对象`c`的操作。
+
+出于完整性的考虑，`Object.getOwnPropertyDescriptors()`进入标准以后，以后还会新增`Reflect.getOwnPropertyDescriptors()`方法。
+
+
+
+## 4.  \__proto__ 属性，Object.setPrototypeOf(), Object.getPrototypeOf()
+
+ JavaScript 语言的对象继承是通过原型链实现的。ES6 提供了更多原型对象的操作方法。 
+
+
+
+### 1. \__proto__ 属性
+
+ `__proto__`属性（前后各两个下划线），用来读取或设置当前对象的原型对象（prototype）。目前，所有浏览器（包括 IE11）都部署了这个属性。 
+
+```javascript
+// es5 的写法
+const obj = {
+  method: function() { ... }
+};
+obj.__proto__ = someOtherObj;
+
+// es6 的写法
+var obj = Object.create(someOtherObj);
+obj.method = function() { ... };
+```
+
+ 该属性没有写入 ES6 的正文，而是写入了附录，原因是`__proto__`前后的双下划线，说明它本质上是一个内部属性，而不是一个正式的对外的 API，只是由于浏览器广泛支持，才被加入了 ES6。标准明确规定，只有浏览器必须部署这个属性，其他运行环境不一定需要部署，而且新的代码最好认为这个属性是不存在的。因此，无论从语义的角度，还是从兼容性的角度，都不要使用这个属性，而是使用下面的`Object.setPrototypeOf()`（写操作）、`Object.getPrototypeOf()`（读操作）、`Object.create()`（生成操作）代替。 
+
+ 实现上，`__proto__`调用的是`Object.prototype.__proto__`，具体实现如下。 
+
+```javascript
+Object.defineProperty(Object.prototype, '__proto__', {
+  get() {
+    let _thisObj = Object(this);
+    return Object.getPrototypeOf(_thisObj);
+  },
+  set(proto) {
+    if (this === undefined || this === null) {
+      throw new TypeError();
+    }
+    if (!isObject(this)) {
+      return undefined;
+    }
+    if (!isObject(proto)) {
+      return undefined;
+    }
+    let status = Reflect.setPrototypeOf(this, proto);
+    if (!status) {
+      throw new TypeError();
+    }
+  },
+});
+
+function isObject(value) {
+  return Object(value) === value;
+}
+```
+
+如果一个对象本身部署了`__proto__`属性，该属性的值就是对象的原型。
+
+```javascript
+Object.getPrototypeOf({ __proto__: null })
+// null
+```
+
+### 2. Object.setPrototypeOf()
+
+ `Object.setPrototypeOf`方法的作用与`__proto__`相同，用来设置一个对象的原型对象（prototype），返回参数对象本身。它是 ES6 正式**推荐的设置原型对象的方法**。 
+
+```javascript
+// 格式
+Object.setPrototypeOf(object, prototype)
+
+// 用法
+const o = Object.setPrototypeOf({}, null);
+```
+
+该方法等同于下面的函数。
+
+```javascript
+function setPrototypeOf(obj, proto) {
+  obj.__proto__ = proto;
+  return obj;
+}
+```
 
 下面是一个例子。
 
 ```javascript
-async function getTitle(url) {
-  let response = await fetch(url);
-  let html = await response.text();
-  return html.match(/<title>([\s\S]+)<\/title>/i)[1];
-}
-getTitle('https://tc39.github.io/ecma262/').then(console.log)
-// "ECMAScript 2017 Language Specification"
+let proto = {};
+let obj = { x: 10 };
+Object.setPrototypeOf(obj, proto);
+
+proto.y = 20;
+proto.z = 40;
+
+obj.x // 10
+obj.y // 20
+obj.z // 40
 ```
 
-上面代码中，函数`getTitle`内部有三个操作：抓取网页、取出文本、匹配页面标题。只有这三个操作全部完成，才会执行`then`方法里面的`console.log`。
+ 上面代码将`proto`对象设为`obj`对象的原型，所以从`obj`对象可以读取`proto`对象的属性。 
 
-### await 命令
-
-正常情况下，`await`命令后面是一个 Promise 对象，返回该对象的结果。如果不是 Promise 对象，就直接返回对应的值。
+ 如果第一个参数不是对象，会自动转为对象。但是由于返回的还是第一个参数，所以这个操作不会产生任何效果。 
 
 ```javascript
-async function f() {
-  // 等同于
-  // return 123;
-  return await 123;
-}
-
-f().then(v => console.log(v))
-// 123
+Object.setPrototypeOf(1, {}) === 1 // true
+Object.setPrototypeOf('foo', {}) === 'foo' // true
+Object.setPrototypeOf(true, {}) === true // true
 ```
 
-上面代码中，`await`命令的参数是数值`123`，这时等同于`return 123`。
-
-另一种情况是，`await`命令后面是一个`thenable`对象（即定义`then`方法的对象），那么`await`会将其等同于 Promise 对象。
+由于`undefined`和`null`无法转为对象，所以如果第一个参数是`undefined`或`null`，就会报错。
 
 ```javascript
-class Sleep {
-  constructor(timeout) {
-    this.timeout = timeout;
-  }
-  then(resolve, reject) {
-    const startTime = Date.now();
-    setTimeout(
-      () => resolve(Date.now() - startTime),
-      this.timeout
-    );
-  }
-}
+Object.setPrototypeOf(undefined, {})
+// TypeError: Object.setPrototypeOf called on null or undefined
 
-(async () => {
-  const sleepTime = await new Sleep(1000);
-  console.log(sleepTime);
-})();
-// 1000
+Object.setPrototypeOf(null, {})
+// TypeError: Object.setPrototypeOf called on null or undefined
 ```
 
-上面代码中，`await`命令后面是一个`Sleep`对象的实例。这个实例不是 Promise 对象，但是因为定义了`then`方法，`await`会将其视为`Promise`处理。
+### 3. Object.getPrototypeOf()
 
-这个例子还演示了如何实现休眠效果。JavaScript 一直没有休眠的语法，但是借助`await`命令就可以让程序停顿指定的时间。下面给出了一个简化的`sleep`实现。
+该方法与`Object.setPrototypeOf`方法配套，用于读取一个对象的原型对象。
 
 ```javascript
-function sleep(interval) {
-  return new Promise(resolve => {
-    setTimeout(resolve, interval);
-  })
-}
-
-// 用法
-async function one2FiveInAsync() {
-  for(let i = 1; i <= 5; i++) {
-    console.log(i);
-    await sleep(1000);
-  }
-}
-
-one2FiveInAsync();
-// 1
-// Promise {<pending>}
-// 2
-// 3
-// 4
-// 5
+Object.getPrototypeOf(obj);
 ```
 
-`await`命令后面的 Promise 对象如果变为`reject`状态，则`reject`的参数会被`catch`方法的回调函数接收到。
+下面是一个例子。
 
 ```javascript
-async function f() {
-  await Promise.reject('出错了');
-}
-
-f()
-.then(v => console.log(v))
-.catch(e => console.log(e))
-// 出错了
-```
-
-注意，上面代码中，`await`语句前面没有`return`，但是`reject`方法的参数依然传入了`catch`方法的回调函数。这里如果在`await`前面加上`return`，效果是一样的。
-
-任何一个`await`语句后面的 Promise 对象变为`reject`状态，那么整个`async`函数都会中断执行。
-
-```javascript
-async function f() {
-  await Promise.reject('出错了');
-  await Promise.resolve('hello world'); // 不会执行
-}
-```
-
-上面代码中，第二个`await`语句是不会执行的，因为第一个`await`语句状态变成了`reject`。
-
-有时，我们希望即使前一个异步操作失败，也不要中断后面的异步操作。这时可以将第一个`await`放在`try...catch`结构里面，这样不管这个异步操作是否成功，第二个`await`都会执行。
-
-```javascript
-async function f() {
-  try {
-    await Promise.reject('出错了');
-  } catch(e) {
-  }
-  return await Promise.resolve('hello world');
-}
-
-f()
-.then(v => console.log(v))
-// hello world
-```
-
-另一种方法是`await`后面的 Promise 对象再跟一个`catch`方法，处理前面可能出现的错误。
-
-```javascript
-async function f() {
-  await Promise.reject('出错了')
-    .catch(e => console.log(e));
-  return await Promise.resolve('hello world');
-}
-
-f()
-.then(v => console.log(v))
-// 出错了
-// hello world
-```
-
-### 错误处理
-
-如果`await`后面的异步操作出错，那么等同于`async`函数返回的 Promise 对象被`reject`。
-
-```javascript
-async function f() {
-  await new Promise(function (resolve, reject) {
-    throw new Error('出错了');
-  });
-}
-
-f()
-.then(v => console.log(v))
-.catch(e => console.log(e))
-// Error：出错了
-```
-
-上面代码中，`async`函数`f`执行后，`await`后面的 Promise 对象会抛出一个错误对象，导致`catch`方法的回调函数被调用，它的参数就是抛出的错误对象。具体的执行机制，可以参考后文的“async 函数的实现原理”。
-
-防止出错的方法，也是将其放在`try...catch`代码块之中。
-
-```javascript
-async function f() {
-  try {
-    await new Promise(function (resolve, reject) {
-      throw new Error('出错了');
-    });
-  } catch(e) {
-  }
-  return await('hello world');
-}
-f()
-// Promise {<resolved>: "hello world"}
-f().then(value => console.log(value))
-// hello world
-```
-
-如果有多个`await`命令，可以统一放在`try...catch`结构中。
-
-```javascript
-async function main() {
-  try {
-    const val1 = await firstStep();
-    const val2 = await secondStep(val1);
-    const val3 = await thirdStep(val1, val2);
-
-    console.log('Final: ', val3);
-  }
-  catch (err) {
-    console.error(err);
-  }
-}
-```
-
-下面的例子使用`try...catch`结构，实现多次重复尝试。
-
-```javascript
-const superagent = require('superagent');
-const NUM_RETRIES = 3;
-
-async function test() {
-  let i;
-  for (i = 0; i < NUM_RETRIES; ++i) {
-    try {
-      await superagent.get('http://google.com/this-throws-an-error');
-      break;
-    } catch(err) {}
-  }
-  console.log(i); // 3
-}
-
-test();
-```
-
-上面代码中，如果`await`操作成功，就会使用`break`语句退出循环；如果失败，会被`catch`语句捕捉，然后进入下一轮循环。
-
-### 使用注意点
-
-第一点，前面已经说过，`await`命令后面的`Promise`对象，运行结果可能是`rejected`，所以最好把`await`命令放在`try...catch`代码块中。
-
-```javascript
-async function myFunction() {
-  try {
-    await somethingThatReturnsAPromise();
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-// 另一种写法
-
-async function myFunction() {
-  await somethingThatReturnsAPromise()
-  .catch(function (err) {
-    console.log(err);
-  });
-}
-```
-
-第二点，多个`await`命令后面的异步操作，如果不存在继发关系，最好让它们同时触发。
-
-上面代码中，`getFoo`和`getBar`是两个独立的异步操作（即互不依赖），被写成继发关系。这样比较耗时，因为只有`getFoo`完成以后，才会执行`getBar`，完全可以让它们同时触发。
-
-```javascript
-// 写法一
-let [foo, bar] = await Promise.all([getFoo(), getBar()]);
-
-// 写法二
-let fooPromise = getFoo();
-let barPromise = getBar();
-let foo = await fooPromise;
-let bar = await barPromise;
-```
-
-上面两种写法，`getFoo`和`getBar`都是同时触发，这样就会缩短程序的执行时间。
-
-第三点，`await`命令只能用在`async`函数之中，如果用在普通函数，就会报错。
-
-```javascript
-async function dbFuc(db) {
-  let docs = [{}, {}, {}];
-
-  // 报错
-  docs.forEach(function (doc) {
-    await db.post(doc);
-  });
-}
-```
-
-上面代码会报错，因为`await`用在普通函数之中了。但是，如果将`forEach`方法的参数改成`async`函数，也有问题。
-
-```javascript
-function dbFuc(db) { //这里不需要 async
-  let docs = [{}, {}, {}];
-
-  // 可能得到错误结果
-  docs.forEach(async function (doc) {
-    await db.post(doc);
-  });
-}
-```
-
-上面代码可能不会正常工作，原因是这时三个`db.post`操作将是并发执行，也就是同时执行，而不是继发执行。正确的写法是采用`for`循环。
-
-```javascript
-async function dbFuc(db) {
-  let docs = [{}, {}, {}];
-
-  for (let doc of docs) {
-    await db.post(doc);
-  }
-}
-```
-
-如果确实希望多个请求并发执行，可以使用`Promise.all`方法。当三个请求都会`resolved`时，下面两种写法效果相同。
-
-```javascript
-async function dbFuc(db) {
-  let docs = [{}, {}, {}];
-  let promises = docs.map((doc) => db.post(doc));
-
-  let results = await Promise.all(promises);
-  console.log(results);
-}
-// 或者使用下面的写法
-
-async function dbFuc(db) {
-  let docs = [{}, {}, {}];
-  let promises = docs.map((doc) => db.post(doc));
-
-  let results = [];
-  for (let promise of promises) {
-    results.push(await promise);
-  }
-  console.log(results);
-}
-```
-
-第四点，async 函数可以保留运行堆栈。
-
-```javascript
-const a = () => {
-  b().then(() => c());
-};
-```
-
-上面代码中，函数`a`内部运行了一个异步任务`b()`。当`b()`运行的时候，函数`a()`不会中断，而是继续执行。等到`b()`运行结束，可能`a()`早就运行结束了，`b()`所在的上下文环境已经消失了。如果`b()`或`c()`报错，错误堆栈将不包括`a()`。
-
-现在将这个例子改成`async`函数。
-
-```javascript
-const a = async () => {
-  await b();
-  c();
-};
-```
-
-上面代码中，`b()`运行的时候，`a()`是暂停执行，上下文环境都保存着。一旦`b()`或`c()`报错，错误堆栈将包括`a()`。
-
-## 4. async 函数的实现原理
-
-async 函数的实现原理，就是将 Generator 函数和自动执行器，包装在一个函数里。
-
-```javascript
-async function fn(args) {
+function Rectangle() {
   // ...
 }
 
-// 等同于
+const rec = new Rectangle();
 
-function fn(args) {
-  return spawn(function* () {
-    // ...
-  });
+Object.getPrototypeOf(rec) === Rectangle.prototype
+// true
+
+Object.setPrototypeOf(rec, Object.prototype);
+Object.getPrototypeOf(rec) === Rectangle.prototype
+// false
+```
+
+ 如果参数不是对象，会被自动转为对象。 
+
+```javascript
+// 等同于 Object.getPrototypeOf(Number(1))
+Object.getPrototypeOf(1)
+// Number {[[PrimitiveValue]]: 0}
+
+// 等同于 Object.getPrototypeOf(String('foo'))
+Object.getPrototypeOf('foo')
+// String {length: 0, [[PrimitiveValue]]: ""}
+
+// 等同于 Object.getPrototypeOf(Boolean(true))
+Object.getPrototypeOf(true)
+// Boolean {[[PrimitiveValue]]: false}
+
+Object.getPrototypeOf(1) === Number.prototype // true
+Object.getPrototypeOf('foo') === String.prototype // true
+Object.getPrototypeOf(true) === Boolean.prototype // true
+```
+
+如果参数是`undefined`或`null`，它们无法转为对象，所以会报错。
+
+```javascript
+Object.getPrototypeOf(null)
+// TypeError: Cannot convert undefined or null to object
+
+Object.getPrototypeOf(undefined)
+// TypeError: Cannot convert undefined or null to object
+```
+
+
+
+## 5. Object.keys(), Object.values(), Object.entries()
+
+### 1. Object.keys()
+
+ES5 引入了`Object.keys`方法，返回一个数组，成员是参数对象自身的（不含继承的）所有可遍历（enumerable）属性的键名。
+
+```javascript
+var obj = { foo: 'bar', baz: 42 };
+Object.keys(obj)
+// ["foo", "baz"]
+```
+
+ ES2017 [引入](https://github.com/tc39/proposal-object-values-entries)了跟`Object.keys`配套的`Object.values`和`Object.entries`，作为遍历一个对象的补充手段，供`for...of`循环使用。 
+
+```javascript
+let {keys, values, entries} = Object;
+let obj = { a: 1, b: 2, c: 3 };
+
+for (let key of keys(obj)) {
+  console.log(key); // 'a', 'b', 'c'
+}
+
+for (let value of values(obj)) {
+  console.log(value); // 1, 2, 3
+}
+
+for (let [key, value] of entries(obj)) {
+  console.log([key, value]); // ['a', 1], ['b', 2], ['c', 3]
 }
 ```
 
-所有的`async`函数都可以写成上面的第二种形式，其中的`spawn`函数就是自动执行器。
 
-下面给出`spawn`函数的实现，基本就是前文自动执行器的翻版。
+
+### 2. Object.values()
+
+`Object.values`方法返回一个数组，成员是参数对象自身的（不含继承的）所有可遍历（enumerable）属性的键值。
 
 ```javascript
-function spawn(genF) {
-  return new Promise(function(resolve, reject) {
-    const gen = genF();
-    function step(nextF) {
-      let next;
-      try {
-        next = nextF();
-      } catch(e) {
-        return reject(e);
-      }
-      if(next.done) {
-        return resolve(next.value);
-      }
-      Promise.resolve(next.value).then(function(v) {
-        step(function() { return gen.next(v); });
-      }, function(e) {
-        step(function() { return gen.throw(e); });
-      });
-    }
-    step(function() { return gen.next(undefined); });
-  });
-}
+const obj = { foo: 'bar', baz: 42 };
+Object.values(obj)
+// ["bar", 42]
 ```
 
-## 5. 与其他异步处理方法的比较
-
-我们通过一个例子，来看 async 函数与 Promise、Generator 函数的比较。
-
-假定某个 DOM 元素上面，部署了一系列的动画，前一个动画结束，才能开始后一个。如果当中有一个动画出错，就不再往下执行，返回上一个成功执行的动画的返回值。
-
-首先是 Promise 的写法。
+返回数组的成员顺序，与本章的《属性的遍历》部分介绍的排列规则一致。
 
 ```javascript
-function chainAnimationsPromise(elem, animations) {
+const obj = { 100: 'a', 2: 'b', 7: 'c' };
+Object.values(obj)
+// ["b", "c", "a"]
+```
 
-  // 变量ret用来保存上一个动画的返回值
-  let ret = null;
+ 上面代码中，属性名为数值的属性，是按照数值大小，从小到大遍历的，因此返回的顺序是`b`、`c`、`a`。 
 
-  // 新建一个空的Promise
-  let p = Promise.resolve();
+ `Object.values`只返回对象自身的可遍历属性。 
 
-  // 使用then方法，添加所有动画
-  for(let anim of animations) {
-    p = p.then(function(val) {
-      ret = val;
-      return anim(elem);
-    });
+```javascript
+const obj = Object.create({}, {p: {value: 42}});
+Object.values(obj) // []
+```
+
+ 上面代码中，`Object.create`方法的第二个参数添加的对象属性（属性`p`），如果不显式声明，默认是不可遍历的，因为`p`的属性描述对象的`enumerable`默认是`false`，`Object.values`不会返回这个属性。只要把`enumerable`改成`true`，`Object.values`就会返回属性`p`的值。 
+
+```javascript
+const obj = Object.create({}, {p:
+  {
+    value: 42,
+    enumerable: true
   }
-
-  // 返回一个部署了错误捕捉机制的Promise
-  return p.catch(function(e) {
-    /* 忽略错误，继续执行 */
-  }).then(function() {
-    return ret;
-  });
-
-}
+});
+Object.values(obj) // [42]
 ```
 
-虽然 Promise 的写法比回调函数的写法大大改进，但是一眼看上去，代码完全都是 Promise 的 API（`then`、`catch`等等），操作本身的语义反而不容易看出来。
-
-接着是 Generator 函数的写法。
+ `Object.values`会过滤属性名为 Symbol 值的属性。 
 
 ```javascript
-function chainAnimationsGenerator(elem, animations) {
-
-  return spawn(function*() {
-    let ret = null;
-    try {
-      for(let anim of animations) {
-        ret = yield anim(elem);
-      }
-    } catch(e) {
-      /* 忽略错误，继续执行 */
-    }
-    return ret;
-  });
-
-}
+Object.values({ [Symbol()]: 123, foo: 'abc' });
+// ['abc']
 ```
 
-上面代码使用 Generator 函数遍历了每个动画，语义比 Promise 写法更清晰，用户定义的操作全部都出现在`spawn`函数的内部。这个写法的问题在于，必须有一个任务运行器，自动执行 Generator 函数，上面代码的`spawn`函数就是自动执行器，它返回一个 Promise 对象，而且必须保证`yield`语句后面的表达式，必须返回一个 Promise。
-
-最后是 async 函数的写法。
+如果`Object.values`方法的参数是一个字符串，会返回各个字符组成的一个数组。
 
 ```javascript
-async function chainAnimationsAsync(elem, animations) {
-  let ret = null;
-  try {
-    for(let anim of animations) {
-      ret = await anim(elem);
-    }
-  } catch(e) {
-    /* 忽略错误，继续执行 */
-  }
-  return ret;
-}
+Object.values('foo')
+// ['f', 'o', 'o']
 ```
 
-可以看到 Async 函数的实现最简洁，最符合语义，几乎没有语义不相关的代码。它将 Generator 写法中的自动执行器，改在语言层面提供，不暴露给用户，因此代码量最少。如果使用 Generator 写法，自动执行器需要用户自己提供。
+ 上面代码中，字符串会先转成一个类似数组的对象。字符串的每个字符，就是该对象的一个属性。因此，`Object.values`返回每个属性的键值，就是各个字符组成的一个数组。 
 
-## 6. 实例：按顺序完成异步操作
-
-实际开发中，经常遇到一组异步操作，需要按照顺序完成。比如，依次远程读取一组 URL，然后按照读取的顺序输出结果。
-
-Promise 的写法如下。
+ 如果参数不是对象，`Object.values`会先将其转为对象。由于数值和布尔值的包装对象，都不会为实例添加非继承的属性。所以，`Object.values`会返回空数组。 
 
 ```javascript
-function logInOrder(urls) {
-  // 远程读取所有URL
-  const textPromises = urls.map(url => {
-    return fetch(url).then(response => response.text());
-  });
-
-  // 按次序输出
-  textPromises.reduce((chain, textPromise) => {
-    return chain.then(() => textPromise)
-      .then(text => console.log(text));
-  }, Promise.resolve());
-}
+Object.values(42) // []
+Object.values(true) // []
 ```
 
-上面代码使用`fetch`方法，同时远程读取一组 URL。每个`fetch`操作都返回一个 Promise 对象，放入`textPromises`数组。然后，`reduce`方法依次处理每个 Promise 对象，然后使用`then`，将所有 Promise 对象连起来，因此就可以依次输出结果。
 
-这种写法不太直观，可读性比较差。下面是 async 函数实现。
+
+### 3. Object.entries()
+
+`Object.entries()`方法返回一个数组，成员是参数对象自身的（不含继承的）所有可遍历（enumerable）属性的键值对数组。
 
 ```javascript
-async function logInOrder(urls) {
-  for (const url of urls) {
-    const response = await fetch(url);
-    console.log(await response.text());
+const obj = { foo: 'bar', baz: 42 };
+Object.entries(obj)
+// [ ["foo", "bar"], ["baz", 42] ]
+```
+
+除了返回值不一样，该方法的行为与`Object.values`基本一致。
+
+如果原对象的属性名是一个 Symbol 值，该属性会被忽略。
+
+```javascript
+Object.entries({ [Symbol()]: 123, foo: 'abc' });
+// [ [ 'foo', 'abc' ] ]
+```
+
+上面代码中，原对象有两个属性，`Object.entries`只输出属性名非 Symbol 值的属性。将来可能会有`Reflect.ownEntries()`方法，返回对象自身的所有属性。
+
+`Object.entries`的基本用途是遍历对象的属性。
+
+```javascript
+let obj = { one: 1, two: 2 };
+for (let [k, v] of Object.entries(obj)) {
+  console.log(
+    `${JSON.stringify(k)}: ${JSON.stringify(v)}`
+  );
+}
+// "one": 1
+// "two": 2
+```
+
+`Object.entries`方法的另一个用处是，将对象转为真正的`Map`结构。
+
+```javascript
+const obj = { foo: 'bar', baz: 42 };
+const map = new Map(Object.entries(obj));
+map // Map { foo: "bar", baz: 42 }
+```
+
+自己实现`Object.entries`方法，非常简单。
+
+```javascript
+// Generator函数的版本
+function* entries(obj) {
+  for (let key of Object.keys(obj)) {
+    yield [key, obj[key]];
   }
 }
-```
 
-上面代码确实大大简化，问题是所有远程操作都是继发。只有前一个 URL 返回结果，才会去读取下一个 URL，这样做效率很差，非常浪费时间。我们需要的是并发发出远程请求。
-
-```javascript
-async function logInOrder(urls) {
-  // 并发读取远程URL
-  const textPromises = urls.map(async url => {
-    const response = await fetch(url);
-    return response.text();
-  });
-
-  // 按次序输出
-  for (const textPromise of textPromises) {
-    console.log(await textPromise);
+// 非Generator函数的版本
+function entries(obj) {
+  let arr = [];
+  for (let key of Object.keys(obj)) {
+    arr.push([key, obj[key]]);
   }
+  return arr;
 }
 ```
 
-上面代码中，虽然`map`方法的参数是`async`函数，但它是并发执行的，因为只有`async`函数内部是继发执行，外部不受影响。后面的`for..of`循环内部使用了`await`，因此实现了按顺序输出。
+
+
+## 6. Object.fromEntries()
+
+ `Object.fromEntries()`方法是`Object.entries()`的逆操作，用于将一个键值对数组转为对象。 
+
+```javascript
+Object.fromEntries([
+  ['foo', 'bar'],
+  ['baz', 42]
+])
+// { foo: "bar", baz: 42 }
+```
+
+ 该方法的主要目的，是将键值对的数据结构还原为对象，因此特别适合将 Map 结构转为对象。 
+
+```javascript
+// 例一
+const entries = new Map([
+  ['foo', 'bar'],
+  ['baz', 42]
+]);
+
+Object.fromEntries(entries)
+// { foo: "bar", baz: 42 }
+
+// 例二
+const map = new Map().set('foo', true).set('bar', false);
+Object.fromEntries(map)
+// { foo: true, bar: false }
+```
+
+该方法的一个用处是配合`URLSearchParams`对象，将查询字符串转为对象。
+
+```javascript
+Object.fromEntries(new URLSearchParams('foo=bar&baz=qux'))
+// { foo: "bar", baz: "qux" }
+```

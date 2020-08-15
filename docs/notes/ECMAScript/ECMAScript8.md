@@ -1,725 +1,1035 @@
-# Class 继承
+# 8. 数组的扩展
 
-> 1. 简介
-> 2. Object.getPrototypeOf()
-> 3. super 关键字
-> 4. 类的 prototype 属性和 \__proto__ 属性
-> 5. 原生构造函数的继承
-> 6. Mixin模式的实现
+> 1. 扩展运算符
+> 2. Array.from()
+> 3. Array.of()
+> 4. 数组实例的 copyWithin()
+> 5. 数组实例的 find() 和 findIndex()
+> 6. 数组实例的 fill()
+> 7. 数组实例的 entries()， keys() 和 values()
+> 8. 数组实例的 includes()
+> 9. 数组实例的 flat()， flatMap()
+> 10. 数组的空位
+> 11. Array.prototype.sort() 的排序稳定性
 
 
 
-## 1. 简介
+## 1. 扩展运算符
 
-Class 可以通过 `extends` 关键字实现继承，这比 ES5 的通过修改原型链实现继承要清晰方便很多。
-
-```javascript
-class Point {
-}
-
-class ColorPoint extends Point {
-}
-```
-
-上面代码定义了一个 `ColorPoint` 类，该类通过 `extends` 关键字，继承了 `Point` 类的所有属性和方法。但是由于没有部署任何代码，所以这两个类完全一样，等于复制了一个 `Point` 类。下面，我们在 `ColorPoint` 内部加上代码。
-
-```javasc
-class ColorPoint extends Point {
-  constructor(x, y, color) {
-    super(x, y); // 调用父类的constructor(x, y)
-    this.color = color;
-  }
-
-  toString() {
-    return this.color + ' ' + super.toString(); // 调用父类的toString()
-  }
-}
-```
-
-上面代码中， `constructor` 方法和 `toString` 方法之中，都出现了 `super` 关键字， 他在这里表示父类的构造函数，用来新建父类的 `this` 对象。
-
-子类必须在 `constructor` 方法中调用 `super` 方法，否则新建实例时会报错。这是因为子类自己的 `this` 对象，必须先通过父类的构造函数完成塑造，得到与父类同样的实例属性和方法，然后在对其进行加工，加上子类自己的实例属性和方法。如果不调用 `super` 方法，子类就得不到 `this` 对象。
+扩展运算符（spread）是三个点 （`...`）。它好比 rest 参数的逆运算，将一个数组转为用逗号分隔的参数序列。
 
 ```javascript
-class Point { /* ... */ }
+console.log(...[1, 2, 3])
+// 1 2 3
 
-class ColorPoint extends Point {
-  constructor() {
-  }
-}
+console.log(1, ...[2, 3, 4], 5)
+// 1 2 3 4 5
 
-let cp = new ColorPoint(); // ReferenceError
+[...document.querySelectorAll('div')]
+// [<div>, <div>, <div>]
 ```
 
- 上面代码中，`ColorPoint`继承了父类`Point`，但是它的构造函数没有调用`super`方法，导致新建实例时报错。 
+该运算符主要用于函数调用。
 
-ES5 的继承，实质是先创造子类的实例对象 `this` ,然后再将父类的方法添加到 `this` 上面`（Parent.apply(this)`）。 ES6的继承机制完全不同，实质是先将父类实例对象的属性和方法，加到 `this` 上面（所以必须先调用 `super` 方法）， 然后再用子类的构造函数修改 `this` 。
-
-
-
- 如果子类没有定义`constructor`方法，这个方法会被默认添加，代码如下。也就是说，不管有没有显式定义，任何一个子类都有`constructor`方法。 
-
-```javasc
-class ColorPoint extends Point {
+```javascript
+function push(array, ...items) {
+    array.push(...items)
 }
+
+function add(x, y) {
+    return x + y
+}
+
+const numbers = [4, 38]
+add(...numbers) // 42
+```
+
+ 上面代码中，`array.push(...items)`和`add(...numbers)`这两行，都是函数的调用，它们都使用了扩展运算符。该运算符将一个数组，变为参数序列。 
+
+ 扩展运算符与正常的函数参数可以结合使用，非常灵活。 
+
+```javascript
+function f(v, w, x, y, z) { }
+const args = [0, 1];
+f(-1, ...args, 2, ...[3]);
+```
+
+ 扩展运算符后面还可以放置表达式。 
+
+```javascript
+const arr = [
+  ...(x > 0 ? ['a'] : []),
+  'b',
+];
+```
+
+ 如果扩展运算符后面是一个空数组，则不产生任何效果。 
+
+```javascript
+[...[], 1]
+// [1]
+```
+
+ 注意，只有函数调用时，扩展运算符才可以放在圆括号中，否则会报错。 
+
+```javascript
+(...[1, 2])
+// Uncaught SyntaxError: Unexpected number
+
+console.log((...[1, 2]))
+// Uncaught SyntaxError: Unexpected number
+
+console.log(...[1, 2])
+// 1 2
+```
+
+```javascript
+(...[1, 2])
+// Uncaught SyntaxError: Unexpected number
+
+console.log((...[1, 2]))
+// Uncaught SyntaxError: Unexpected number
+
+console.log(...[1, 2])
+// 1 2
+```
+
+
+
+### 代替函数的 apply 方法
+
+ 由于扩展运算符可以展开数组，所以不再需要`apply`方法，将数组转为函数的参数了。 
+
+```javascript
+// ES5 的写法
+function f(x, y, z) {
+  // ...
+}
+var args = [0, 1, 2];
+f.apply(null, args);
+
+// ES6的写法
+function f(x, y, z) {
+  // ...
+}
+let args = [0, 1, 2];
+f(...args);
+```
+
+下面是扩展运算符取代 `apply` 方法的一个实际例子，应用  `Math.max` 方法，简化求出一个数组最大元素的写法。
+
+```javascript
+// ES5 的写法
+Math.max.apply(null, [14, 3, 77])
+
+// ES6 的写法
+Math.max(...[14, 3, 77])
 
 // 等同于
-class ColorPoint extends Point {
-  constructor(...args) {
-    super(...args);
-  }
-}
+Math.max(14, 3, 77);
 ```
 
- 另一个需要注意的地方是，在子类的构造函数中，只有调用`super`之后，才可以使用`this`关键字，否则会报错。这是因为子类实例的构建，基于父类实例，只有`super`方法才能调用父类实例。 
+ 上面代码中，由于 JavaScript 不提供求数组最大元素的函数，所以只能套用`Math.max`函数，将数组转为一个参数序列，然后求最大值。有了扩展运算符以后，就可以直接用`Math.max`了。 
+
+ 另一个例子是通过`push`函数，将一个数组添加到另一个数组的尾部。 
 
 ```javascript
-class Point {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-  }
-}
+// ES5的 写法
+var arr1 = [0, 1, 2];
+var arr2 = [3, 4, 5];
+Array.prototype.push.apply(arr1, arr2);
 
-class ColorPoint extends Point {
-  constructor(x, y, color) {
-    this.color = color; // ReferenceError
-    super(x, y);
-    this.color = color; // 正确
-  }
-}
+// ES6 的写法
+let arr1 = [0, 1, 2];
+let arr2 = [3, 4, 5];
+arr1.push(...arr2);
 ```
 
-上面代码中，子类的 `constructor` 方法没有调用 `super` 之前，就使用 `this` 关键字，结果报错，而放在 `super` 方法之后就是正确的。
+上面代码的 ES5 写法中，`push`方法的参数不能是数组，所以只好通过`apply`方法变通使用`push`方法。有了扩展运算符，就可以直接将数组传入`push`方法。
 
-
-
-下面是生成子类实例的代码：
+ 下面是另外一个例子。 
 
 ```javascript
-let cp = new ColorPoint(25, 8, 'green');
-
-cp instanceof ColorPoint // true
-cp instanceof Point // true
+// ES5
+new (Date.bind.apply(Date, [null, 2015, 1, 1]))
+// ES6
+new Date(...[2015, 1, 1]);
 ```
 
- 上面代码中，实例对象`cp`同时是`ColorPoint`和`Point`两个类的实例，这与 ES5 的行为完全一致。 
 
-最后父类的静态方法，也会被子类继承。
+
+### 扩展运算符的应用
+
+#### 1. 复制数组
+
+数组是复合的数据类型，直接复制的话，只是复制了指向底层数据结构的指针，而不是克隆一个全新的数组
 
 ```javascript
-class A {
-  static hello() {
-    console.log('hello world');
-  }
-}
+const a1 = [1, 2];
+const a2 = a1;
 
-class B extends A {
-}
-
-B.hello()  // hello world
+a2[0] = 2;
+a1 // [2, 2]
 ```
 
- 上面代码中，`hello()`是`A`类的静态方法，`B`继承`A`，也继承了`A`的静态方法。 
+ 上面代码中，`a2`并不是`a1`的克隆，而是指向同一份数据的另一个指针。修改`a2`，会直接导致`a1`的变化。 
 
-
-
--------------
-
-## 2. Object.getPrototypeOf()
-
- `Object.getPrototypeOf`方法可以用来从子类上获取父类。 
+ ES5 只能用变通方法来复制数组。 
 
 ```javascript
-Object.getPrototypeOf(ColorPoint) === Point
-// true
+const a1 = [1, 2]
+const a2 = a1.concat()
+
+a2[0] = 2
+a1 // [1, 2]
 ```
 
- 因此，可以使用这个方法判断，一个类是否继承了另一个类。 
+ 上面代码中，`a1`会返回原数组的克隆，再修改`a2`就不会对`a1`产生影响。 
 
-
-
-----------
-
-## 3. super 关键字
-
- `super`这个关键字，既可以当作函数使用，也可以当作对象使用。在这两种情况下，它的用法完全不同。 
-
- __第一种情况__，`super`作为函数调用时，代表父类的构造函数。ES6 要求，子类的构造函数必须执行一次`super`函数。 
+扩展运算符提供了数组的简便写法。
 
 ```javascript
-class A {}
-
-class B extends A {
-  constructor() {
-    super();
-  }
-}
+const a1 = [1, 2]
+// 写法一
+const a2 = [...a1]
+// 写法二
+const [...a2] = a1
 ```
 
- 上面代码中，子类`B`的构造函数之中的`super()`，代表调用父类的构造函数。这是必须的，否则 JavaScript 引擎会报错。 
+ 上面的两种写法，`a2`都是`a1`的克隆 。
 
- 注意，`super`虽然代表了父类`A`的构造函数，但是返回的是子类`B`的实例，即`super`内部的`this`指的是`B`的实例，因此`super()`在这里相当于`A.prototype.constructor.call(this)`。 
+#### 2. 合并数组
+
+ 扩展运算符提供了数组合并的新写法。 
 
 ```javascript
-class A {
-  constructor() {
-    console.log(new.target.name);
-  }
-}
-class B extends A {
-  constructor() {
-    super();
-  }
-}
-new A() // A
-new B() // B
+const arr1 = ['a', 'b'];
+const arr2 = ['c'];
+const arr3 = ['d', 'e'];
+
+// ES5 的合并数组
+arr1.concat(arr2, arr3);
+// [ 'a', 'b', 'c', 'd', 'e' ]
+
+// ES6 的合并数组
+[...arr1, ...arr2, ...arr3]
+// [ 'a', 'b', 'c', 'd', 'e' ]
 ```
 
- 上面代码中，`new.target`指向当前正在执行的函数。可以看到，在`super()`执行时，它指向的是子类`B`的构造函数，而不是父类`A`的构造函数。也就是说，`super()`内部的`this`指向的是`B`。 
-
- 作为函数时，`super()`只能用在子类的构造函数之中，用在其他地方就会报错。 
+ 不过，这两种方法都是浅拷贝，使用的时候需要注意。 
 
 ```javascript
-class A {}
+const a1 = [{ foo: 1 }];
+const a2 = [{ bar: 2 }];
 
-class B extends A {
-  m() {
-    super(); // 报错
-  }
-}
+const a3 = a1.concat(a2);
+const a4 = [...a1, ...a2];
+
+a3[0] === a1[0] // true
+a4[0] === a1[0] // true
+
+a1[0].foo = 2
+a3[0] // {foo: 2}
+a4[0] // {foo: 2}
 ```
 
- 上面代码中，`super()`用在`B`类的`m`方法之中，就会造成语法错误。 
+ 上面代码中，`a3`和`a4`是用两种不同方法合并而成的新数组，但是它们的成员都是对原数组成员的引用，这就是浅拷贝。如果修改了引用指向的值，会同步反映到新数组。 
 
-__第二种情况__，  `super`作为对象时，在普通方法中，指向父类的原型对象；在静态方法中，指向父类。 
+#### 3. 与解构赋值结合
+
+拓展运算符可以和解构赋值结合起来，用于生成数组。
 
 ```javascript
-class A {
-  p() {
-    return 2;
-  }
-}
-
-class B extends A {
-  constructor() {
-    super();
-    console.log(super.p()); // 2
-  }
-}
-
-let b = new B();
+let list = [1,2,3,4,5]
+// ES5
+a = list[0], rest = list.slice(1) 
+a // 1
+rest // [2,3,4,5]
+// ES6
+[b, ...rest1] = list
+b // 1
+rest1 // [2,3,4,5]
 ```
 
- 上面代码中，子类`B`当中的`super.p()`，就是将`super`当作一个对象使用。这时，`super`在普通方法之中，指向`A.prototype`，所以`super.p()`就相当于`A.prototype.p()`。 
-
- 这里需要注意，由于`super`指向父类的原型对象，所以定义在父类实例上的方法或属性，是无法通过`super`调用的。 
+下面是另外一些例子。
 
 ```javascript
-class A {
-  constructor() {
-    this.p = 2;
-  }
-}
+const [first, ...rest] = [1,2,3,4,5]
+first // 1
+rest  // [2, 3, 4, 5]
 
-class B extends A {
-  get m() {
-    return super.p;
-  }
-}
+const [first, ...rest] = [];
+first // undefined
+rest  // []
 
-let b = new B();
-b.m // undefined
+const [first, ...rest] = ["foo"];
+first  // "foo"
+rest   // []
 ```
 
- 上面代码中，`p`是父类`A`实例的属性，`super.p`就引用不到它。 
-
- 如果属性定义在父类的原型对象上，`super`就可以取到。 
-
-```
-class A {}
-A.prototype.x = 2;
-
-class B extends A {
-  constructor() {
-    super();
-    console.log(super.x) // 2
-  }
-}
-
-let b = new B();
-```
-
- 上面代码中，属性`x`是定义在`A.prototype`上面的，所以`super.x`可以取到它的值。 
-
- ES6 规定，在子类普通方法中通过`super`调用父类的方法时，方法内部的`this`指向当前的子类实例。 
+ 如果将扩展运算符用于数组赋值，只能放在参数的最后一位，否则会报错。 
 
 ```javascript
-class A {
-  constructor() {
-    this.x = 1;
-  }
-  print() {
-    console.log(this.x);
-  }
-}
+const [...butLast, last] = [1, 2, 3, 4, 5];
+// 报错
 
-class B extends A {
-  constructor() {
-    super();
-    this.x = 2;
-  }
-  m() {
-    super.print();
-  }
-}
-
-let b = new B();
-b.m() // 2
+const [first, ...middle, last] = [1, 2, 3, 4, 5];
+// 报错
 ```
 
- 上面代码中，`super.print()`虽然调用的是`A.prototype.print()`，但是`A.prototype.print()`内部的`this`指向子类`B`的实例，导致输出的是`2`，而不是`1`。也就是说，实际上执行的是`super.print.call(this)`。 
 
- 由于`this`指向子类实例，所以如果通过`super`对某个属性赋值，这时`super`就是`this`，赋值的属性会变成子类实例的属性。 
+
+#### 4. 字符串
+
+ 扩展运算符还可以将字符串转为真正的数组。 
 
 ```javascript
-class A {
-  constructor() {
-    this.x = 1;
-  }
-}
-
-class B extends A {
-  constructor() {
-    super();
-    this.x = 2;
-    super.x = 3;
-    console.log(super.x); // undefined
-    console.log(this.x); // 3
-  }
-}
-
-let b = new B();
+[...'hello']
+// [ "h", "e", "l", "l", "o" ]
 ```
 
- 上面代码中，`super.x`赋值为`3`，这时等同于对`this.x`赋值为`3`。而当读取`super.x`的时候，读的是`A.prototype.x`，所以返回`undefined`。 
-
- 如果`super`作为对象，用在静态方法之中，这时`super`将指向父类，而不是父类的原型对象。 
+ 上面的写法，有一个重要的好处，那就是能够正确识别四个字节的 Unicode 字符。 
 
 ```javascript
-class Parent {
-  static myMethod(msg) {
-    console.log('static', msg);
-  }
-
-  myMethod(msg) {
-    console.log('instance', msg);
-  }
-}
-
-class Child extends Parent {
-  static myMethod(msg) {
-    super.myMethod(msg);
-  }
-
-  myMethod(msg) {
-    super.myMethod(msg);
-  }
-}
-
-Child.myMethod(1); // static 1
-
-var child = new Child();
-child.myMethod(2); // instance 2
+'x\uD83D\uDE80y'.length // 4
+[...'x\uD83D\uDE80y'].length // 3
 ```
 
- 上面代码中，`super`在静态方法之中指向父类，在普通方法之中指向父类的原型对象。 
-
- 另外，在子类的静态方法中通过`super`调用父类的方法时，方法内部的`this`指向当前的子类，而不是子类的实例。 
+ 上面代码的第一种写法，JavaScript 会将四个字节的 Unicode 字符，识别为 2 个字符，采用扩展运算符就没有这个问题。因此，正确返回字符串长度的函数，可以像下面这样写。 
 
 ```javascript
-class A {
-  constructor() {
-    this.x = 1;
-  }
-  static print() {
-    console.log(this.x);
-  }
+function length(str) {
+  return [...str].length;
 }
 
-class B extends A {
-  constructor() {
-    super();
-    this.x = 2;
-  }
-  static m() {
-    super.print();
-  }
-}
-
-B.x = 3;
-B.m() // 3
+length('x\uD83D\uDE80y') // 3
 ```
 
- 上面代码中，静态方法`B.m`里面，`super.print`指向父类的静态方法。这个方法里面的`this`指向的是`B`，而不是`B`的实例。 
-
- 注意，使用`super`的时候，必须显式指定是作为函数、还是作为对象使用，否则会报错。 
+ 凡是涉及到操作四个字节的 Unicode 字符的函数，都有这个问题。因此，最好都用扩展运算符改写。 
 
 ```javascript
-class A {}
+let str = 'x\uD83D\uDE80y';
 
-class B extends A {
-  constructor() {
-    super();
-    console.log(super); // 报错
-  }
-}
+str.split('').reverse().join('')
+// 'y\uDE80\uD83Dx'
+
+[...str].reverse().join('')
+// 'y\uD83D\uDE80x'
 ```
 
- 上面代码中，`console.log(super)`当中的`super`，无法看出是作为函数使用，还是作为对象使用，所以 JavaScript 引擎解析代码的时候就会报错。这时，如果能清晰地表明`super`的数据类型，就不会报错。 
+ 上面代码中，如果不用扩展运算符，字符串的`reverse`操作就不正确 
+
+#### 5. 实现了 Iterator 接口的对象
+
+ 任何定义了遍历器（Iterator）接口的对象（参阅 Iterator 一章），都可以用扩展运算符转为真正的数组。 
 
 ```javascript
-class A {}
+let nodeList = document.querySelectorAll('div');
+let array = [...nodeList];
+```
 
-class B extends A {
-  constructor() {
-    super();
-    console.log(super.valueOf() instanceof B); // true
+ 上面代码中，`querySelectorAll`方法返回的是一个`NodeList`对象。它不是数组，而是一个类似数组的对象。这时，扩展运算符可以将其转为真正的数组，原因就在于`NodeList`对象实现了 Iterator 。 
+
+```javascript
+Number.prototype[Symbol.iterator] = function*() {
+  let i = 0;
+  let num = this.valueOf();
+  while (i < num) {
+    yield i++;
   }
 }
 
-let b = new B();
+console.log([...5]) // [0, 1, 2, 3, 4]
 ```
 
- 上面代码中，`super.valueOf()`表明`super`是一个对象，因此就不会报错。同时，由于`super`使得`this`指向`B`的实例，所以`super.valueOf()`返回的是一个`B`的实例。 
+ 上面代码中，先定义了`Number`对象的遍历器接口，扩展运算符将`5`自动转成`Number`实例以后，就会调用这个接口，就会返回自定义的结果。 
 
- 最后，由于对象总是继承其他对象的，所以可以在任意一个对象中，使用`super`关键字。 
+ 对于那些没有部署 Iterator 接口的类似数组的对象，扩展运算符就无法将其转为真正的数组。 
 
 ```javascript
-var obj = {
-  toString() {
-    return "MyObject: " + super.toString();
-  }
+let arrayLike = {
+  '0': 'a',
+  '1': 'b',
+  '2': 'c',
+  length: 3
 };
 
-obj.toString(); // MyObject: [object Object]
+// TypeError: Cannot spread non-iterable object.
+let arr = [...arrayLike];
 ```
 
+ 上面代码中，`arrayLike`是一个类似数组的对象，但是没有部署 Iterator 接口，扩展运算符就会报错。这时，可以改为使用`Array.from`方法将`arrayLike`转为真正的数组。 
 
+#### 6. Map 和 Set 结构，Generator 函数
 
---------------
-
-## 4. 类的 prototype 属性和 \__proto__ 属性
-
- 大多数浏览器的 ES5 实现之中，每一个对象都有`__proto__`属性，指向对应的构造函数的`prototype`属性。Class 作为构造函数的语法糖，同时有`prototype`属性和`__proto__`属性，因此同时存在两条继承链。 
-
-（1）子类的`__proto__`属性，表示构造函数的继承，总是指向父类。
-
-（2）子类`prototype`属性的`__proto__`属性，表示方法的继承，总是指向父类的`prototype`属性。
+ 扩展运算符内部调用的是数据结构的 Iterator 接口，因此只要具有 Iterator 接口的对象，都可以使用扩展运算符，比如 Map 结构。 
 
 ```javascript
-class A {
-}
+let map = new Map([
+  [1, 'one'],
+  [2, 'two'],
+  [3, 'three'],
+]);
 
-class B extends A {
-}
-
-B.__proto__ === A // true
-B.prototype.__proto__ === A.prototype // true
+let arr = [...map.keys()]; // [1, 2, 3]
 ```
 
- 上面代码中，子类`B`的`__proto__`属性指向父类`A`，子类`B`的`prototype`属性的`__proto__`属性指向父类`A`的`prototype`属性。 
-
- 这样的结果是因为，类的继承是按照下面的模式实现的。 
+ Generator 函数运行后，返回一个遍历器对象，因此也可以使用扩展运算符。 
 
 ```javascript
-class A {
-}
-
-class B {
-}
-
-// B 的实例继承 A 的实例
-Object.setPrototypeOf(B.prototype, A.prototype);
-
-// B 继承 A 的静态属性
-Object.setPrototypeOf(B, A);
-
-const b = new B();
-```
-
- 《对象的扩展》一章给出过`Object.setPrototypeOf`方法的实现。 
-
-```javascript
-Object.setPrototypeOf = function (obj, proto) {
-  obj.__proto__ = proto;
-  return obj;
-}
-```
-
- 因此，就得到了上面的结果。 
-
-```javascript
-Object.setPrototypeOf(B.prototype, A.prototype);
-// 等同于
-B.prototype.__proto__ = A.prototype;
-
-Object.setPrototypeOf(B, A);
-// 等同于
-B.__proto__ = A;
-```
-
- 这两条继承链，可以这样理解：作为一个对象，子类（`B`）的原型（`__proto__`属性）是父类（`A`）；作为一个构造函数，子类（`B`）的原型对象（`prototype`属性）是父类的原型对象（`prototype`属性）的实例。 
-
-```javascript
-B.prototype = Object.create(A.prototype);
-// 等同于
-B.prototype.__proto__ = A.prototype;
-```
-
- `extends`关键字后面可以跟多种类型的值。 
-
-```javascript
-class B extends A {
-}
-```
-
- 上面代码的`A`，只要是一个有`prototype`属性的函数，就能被`B`继承。由于函数都有`prototype`属性（除了`Function.prototype`函数），因此`A`可以是任意函数。 
-
- 下面，讨论两种情况。第一种，子类继承`Object`类。 
-
-```javascript
-class A extends Object {
-}
-
-A.__proto__ === Object // true
-A.prototype.__proto__ === Object.prototype // true
-```
-
- 这种情况下，`A`其实就是构造函数`Object`的复制，`A`的实例就是`Object`的实例。 
-
- 第二种情况，不存在任何继承。 
-
-```javascript
-class A {
-}
-
-A.__proto__ === Function.prototype // true
-A.prototype.__proto__ === Object.prototype // true
-```
-
-这种情况下，`A`作为一个基类（即不存在任何继承），就是一个普通函数，所以直接继承`Function.prototype`。但是，`A`调用后返回一个空对象（即`Object`实例），所以`A.prototype.__proto__`指向构造函数（`Object`）的`prototype`属性。
-
-
-
--- -- --
-
-### 实例的 \__proto__ 属性
-
- 子类实例的`__proto__`属性的`__proto__`属性，指向父类实例的`__proto__`属性。也就是说，子类的原型的原型，是父类的原型。 
-
-```javascript
-var p1 = new Point(2, 3);
-var p2 = new ColorPoint(2, 3, 'red');
-
-p2.__proto__ === p1.__proto__ // false
-p2.__proto__.__proto__ === p1.__proto__ // true
-```
-
- 上面代码中，`ColorPoint`继承了`Point`，导致前者原型的原型是后者的原型。 
-
- 因此，通过子类实例的`__proto__.__proto__`属性，可以修改父类实例的行为。 
-
-```javascript
-p2.__proto__.__proto__.printName = function () {
-  console.log('Ha');
+const go = function*(){
+  yield 1;
+  yield 2;
+  yield 3;
 };
 
-p1.printName() // "Ha"
+[...go()] // [1, 2, 3]
 ```
 
- 上面代码在`ColorPoint`的实例`p2`上向`Point`类添加方法，结果影响到了`Point`的实例`p1`。 
+ 上面代码中，变量`go`是一个 Generator 函数，执行后返回的是一个遍历器对象，对这个遍历器对象执行扩展运算符，就会将内部遍历得到的值，转为一个数组。 
 
-
-
-------
-
-## 5. 原生构造函数的继承
-
- 原生构造函数是指语言内置的构造函数，通常用来生成数据结构。ECMAScript 的原生构造函数大致有下面这些。
-
-- Boolean()
-- Number()
-- String()
-- Array()
-- Date()
-- Function()
-- RegExp()
-- Error()
-- Object()
-
- ES6 允许继承原生构造函数定义子类，因为 ES6 是先新建父类的实例对象`this`，然后再用子类的构造函数修饰`this`，使得父类的所有行为都可以继承。下面是一个继承`Array`的例子。 
+ 如果对没有 Iterator 接口的对象，使用扩展运算符，将会报错。 
 
 ```javascript
-  constructor(...args) {
-    super(...args);
-  }
-}
-
-var arr = new MyArray();
-arr[0] = 12;
-arr.length // 1
-
-arr.length = 0;
-arr[0] // undefined
+const obj = {a: 1, b: 2};
+let arr = [...obj]; // TypeError: Cannot spread non-iterable object
 ```
 
-上面代码定义了一个`MyArray`类，继承了`Array`构造函数，因此就可以从`MyArray`生成数组的实例。这意味着，ES6 可以自定义原生数据结构（比如`Array`、`String`等）的子类，这是 ES5 无法做到的。
 
- 上面这个例子也说明，`extends`关键字不仅可以用来继承类，还可以用来继承原生的构造函数。因此可以在原生数据结构的基础上，定义自己的数据结构。下面就是定义了一个带版本功能的数组。 
 
-```javascript
-class VersionedArray extends Array {
-  constructor() {
-    super();
-    this.history = [[]];
-  }
-  commit() {
-    this.history.push(this.slice());
-  }
-  revert() {
-    this.splice(0, this.length, ...this.history[this.history.length - 1]);
-  }
-}
+## 2. Array.from()
 
-var x = new VersionedArray();
+ `Array.from`方法用于将两类对象转为真正的数组：类似数组的对象（array-like object）和可遍历（iterable）的对象（包括 ES6 新增的数据结构 Set 和 Map）。 
 
-x.push(1);
-x.push(2);
-x // [1, 2]
-x.history // [[]]
-
-x.commit();
-x.history // [[], [1, 2]]
-
-x.push(3);
-x // [1, 2, 3]
-x.history // [[], [1, 2]]
-
-x.revert();
-x // [1, 2]
-```
-
- 上面代码中，`VersionedArray`会通过`commit`方法，将自己的当前状态生成一个版本快照，存入`history`属性。`revert`方法用来将数组重置为最新一次保存的版本。除此之外，`VersionedArray`依然是一个普通数组，所有原生的数组方法都可以在它上面调用。 
-
- 下面是一个自定义`Error`子类的例子，可以用来定制报错时的行为。 
+ 下面是一个类似数组的对象，`Array.from`将它转为真正的数组。 
 
 ```javascript
-class ExtendableError extends Error {
-  constructor(message) {
-    super();
-    this.message = message;
-    this.stack = (new Error()).stack;
-    this.name = this.constructor.name;
-  }
-}
-
-class MyError extends ExtendableError {
-  constructor(m) {
-    super(m);
-  }
-}
-
-var myerror = new MyError('ll');
-myerror.message // "ll"
-myerror instanceof Error // true
-myerror.name // "MyError"
-myerror.stack
-// Error
-//     at MyError.ExtendableError
-//     ...
-```
-
- 注意，继承`Object`的子类，有一个[行为差异](http://stackoverflow.com/questions/36203614/super-does-not-pass-arguments-when-instantiating-a-class-extended-from-object)。 
-
-```javascript
-class NewObj extends Object{
-  constructor(){
-    super(...arguments);
-  }
-}
-var o = new NewObj({attr: true});
-o.attr === true  // false
-```
-
- 上面代码中，`NewObj`继承了`Object`，但是无法通过`super`方法向父类`Object`传参。这是因为 ES6 改变了`Object`构造函数的行为，一旦发现`Object`方法不是通过`new Object()`这种形式调用，ES6 规定`Object`构造函数会忽略参数。 
-
-
-
----------
-
-## 6. Mixin 模式的实现
-
- Mixin 指的是多个对象合成一个新的对象，新对象具有各个组成成员的接口。它的最简单实现如下。 
-
-```javascript
-const a = {
-  a: 'a'
+let arrayLike = {
+    '0': 'a',
+    '1': 'b',
+    '2': 'c',
+    length: 3
 };
-const b = {
-  b: 'b'
-};
-const c = {...a, ...b}; // {a: 'a', b: 'b'}
+
+// ES5的写法
+var arr1 = [].slice.call(arrayLike); // ['a', 'b', 'c']
+
+// ES6的写法
+let arr2 = Array.from(arrayLike); // ['a', 'b', 'c']
 ```
 
- 上面代码中，`c`对象是`a`对象和`b`对象的合成，具有两者的接口。 
-
- 下面是一个更完备的实现，将多个类的接口“混入”（mix in）另一个类。 
+ 实际应用中，常见的类似数组的对象是 DOM 操作返回的 NodeList 集合，以及函数内部的`arguments`对象。`Array.from`都可以将它们转为真正的数组。 
 
 ```javascript
-function mix(...mixins) {
-  class Mix {
-    constructor() {
-      for (let mixin of mixins) {
-        copyProperties(this, new mixin()); // 拷贝实例属性
-      }
-    }
-  }
+// NodeList对象
+let ps = document.querySelectorAll('p');
+Array.from(ps).filter(p => {
+  return p.textContent.length > 100;
+});
 
-  for (let mixin of mixins) {
-    copyProperties(Mix, mixin); // 拷贝静态属性
-    copyProperties(Mix.prototype, mixin.prototype); // 拷贝原型属性
-  }
-
-  return Mix;
-}
-
-function copyProperties(target, source) {
-  for (let key of Reflect.ownKeys(source)) {
-    if ( key !== 'constructor'
-      && key !== 'prototype'
-      && key !== 'name'
-    ) {
-      let desc = Object.getOwnPropertyDescriptor(source, key);
-      Object.defineProperty(target, key, desc);
-    }
-  }
-}
-```
-
- 上面代码的`mix`函数，可以将多个对象合成为一个类。使用的时候，只要继承这个类即可。 
-
-```javascript
-class DistributedEdit extends mix(Loggable, Serializable) {
+// arguments对象
+function foo() {
+  var args = Array.from(arguments);
   // ...
 }
 ```
 
+上面代码中，`querySelectorAll`方法返回的是一个类似数组的对象，可以将这个对象转为真正的数组，再使用`filter`方法。
+
+ 只要是部署了 Iterator 接口的数据结构，`Array.from`都能将其转为数组。 
+
+```javascript
+Array.from('hello')
+// ['h', 'e', 'l', 'l', 'o']
+
+let namesSet = new Set(['a', 'b'])
+Array.from(namesSet) // ['a', 'b']
+```
+
+ 上面代码中，字符串和 Set 结构都具有 Iterator 接口，因此可以被`Array.from`转为真正的数组。 
+
+ 如果参数是一个真正的数组，`Array.from`会返回一个一模一样的新数组。 
+
+```javascript
+Array.from([1, 2, 3])
+// [1, 2, 3]
+```
+
+ 值得提醒的是，扩展运算符（`...`）也可以将某些数据结构转为数组。 
+
+```javascript
+// arguments对象
+function foo() {
+  const args = [...arguments];
+}
+
+// NodeList对象
+[...document.querySelectorAll('div')]
+```
+
+扩展运算符背后调用的是遍历器接口（`Symbol.iterator`），如果一个对象没有部署这个接口，就无法转换。`Array.from`方法还支持类似数组的对象。所谓类似数组的对象，本质特征只有一点，即必须有`length`属性。因此，任何有`length`属性的对象，都可以通过`Array.from`方法转为数组，而此时扩展运算符就无法转换。
+
+```javascript
+Array.from({ length: 3 });
+// [ undefined, undefined, undefined ]
+```
+
+ 上面代码中，`Array.from`返回了一个具有三个成员的数组，每个位置的值都是`undefined`。扩展运算符转换不了这个对象。 
+
+ 对于还没有部署该方法的浏览器，可以用`Array.prototype.slice`方法替代。 
+
+```javascript
+const toArray = (() =>
+  Array.from ? Array.from : obj => [].slice.call(obj)
+)();
+```
+
+ `Array.from`还可以接受第二个参数，作用类似于数组的`map`方法，用来对每个元素进行处理，将处理后的值放入返回的数组。 
+
+```javascript
+Array.from(arrayLike, x => x * x);
+// 等同于
+Array.from(arrayLike).map(x => x * x);
+
+Array.from([1, 2, 3], (x) => x * x)
+// [1, 4, 9]
+```
+
+ 下面的例子是取出一组 DOM 节点的文本内容。 
+
+```javascript
+let spans = document.querySelectorAll('span.name');
+
+// map()
+let names1 = Array.prototype.map.call(spans, s => s.textContent);
+
+// Array.from()
+let names2 = Array.from(spans, s => s.textContent)
+```
+
+ 下面的例子将数组中布尔值为`false`的成员转为`0`。 
+
+```javascript
+Array.from([1, , 2, , 3], (n) => n || 0)
+// [1, 0, 2, 0, 3]
+```
+
+ 另一个例子是返回各种数据的类型。 
+
+```javascript
+function typesOf () {
+  return Array.from(arguments, value => typeof value)
+}
+typesOf(null, [], NaN)
+// ['object', 'object', 'number']
+```
+
+ 如果`map`函数里面用到了`this`关键字，还可以传入`Array.from`的第三个参数，用来绑定`this`。 
+
+ `Array.from()`可以将各种值转为真正的数组，并且还提供`map`功能。这实际上意味着，只要有一个原始的数据结构，你就可以先对它的值进行处理，然后转成规范的数组结构，进而就可以使用数量众多的数组方法。 
+
+```javascript
+Array.from({ length: 2 }, () => 'jack')
+// ['jack', 'jack']
+```
+
+ 上面代码中，`Array.from`的第一个参数指定了第二个参数运行的次数。这种特性可以让该方法的用法变得非常灵活。 
+
+ `Array.from()`的另一个应用是，将字符串转为数组，然后返回字符串的长度。因为它能正确处理各种 Unicode 字符，可以避免 JavaScript 将大于`\uFFFF`的 Unicode 字符，算作两个字符的 bug。 
+
+```javascript
+function countSymbols(string) {
+  return Array.from(string).length;
+}
+```
 
 
 
+## 3. Array.of()
+
+`Array.of` 方法用于将一组值，转换为数组。
+
+```javascript
+Array.of(3, 11, 8) // [3, 11, 8]
+Array.of(3) // [3]
+Array.of(3).length // 1
+```
+
+ 这个方法的主要目的，是弥补数组构造函数`Array()`的不足。因为参数个数的不同，会导致`Array()`的行为有差异。 
+
+```javascript
+Array() // []
+Array(3) // [, , ,]
+Array(3, 11, 8) // [3, 11, 8]
+```
+
+ 上面代码中，`Array`方法没有参数、一个参数、三个参数时，返回结果都不一样。只有当参数个数不少于 2 个时，`Array()`才会返回由参数组成的新数组。参数个数只有一个时，实际上是指定数组的长度。 
+
+`Array.of` 基本上可以用来替代 `Array` 或 `new Array()`，并且不存在由于参数不同而导致的重载。它的行为非常统一。
+
+```javascript
+Array.of() // []
+Array.of(undefined) // [undefined]
+Array.of(1) // [1]
+Array.of(1, 2) // [1, 2]
+```
+
+ `Array.of`总是返回参数值组成的数组。如果没有参数，就返回一个空数组。 
+
+ `Array.of`方法可以用下面的代码模拟实现。 
+
+```javascript
+function ArrayOf(){
+  return [].slice.call(arguments);
+}
+```
 
 
 
+## 4. 数组实例的 copyWithin()
+
+数组实例的 `copyWithin()` 方法，在当前数组内部，将制定位置的成员复制到其他位置（会覆盖原有成员），然后返回当前数组。也就是说，使用这个方法，会修改当前数组。
+
+```javascript
+Array.prototype.copyWithin(target, start = 0, end = this.length)
+```
+
+它接受三个参数。
+
+- target（必需）： 从该位置开始替换数据。如果为负值，表示倒数。
+- start （可选）： 从该位置开始读取数据，默认为 0.如果为负值，表示从末尾开始计算
+- end （可选）： 到该位置前停止读取数据，默认等于数组长度。如果为负值，表示从末尾开始计算。
+
+这三个参数都应该是数值，如果不是，会自动转为数值。
+
+```javascript
+[1, 2, 3, 4, 5].copyWithin(0, 3)
+// [4, 5, 3, 4, 5]
+```
+
+ 上面代码表示将从 3 号位直到数组结束的成员（4 和 5），复制到从 0 号位开始的位置，结果覆盖了原来的 1 和 2。 
+
+ 下面是更多例子。 
+
+```javascript
+// 将3号位复制到0号位
+[1, 2, 3, 4, 5].copyWithin(0, 3, 4)
+// [4, 2, 3, 4, 5]
+
+// -2相当于3号位，-1相当于4号位
+[1, 2, 3, 4, 5].copyWithin(0, -2, -1)
+// [4, 2, 3, 4, 5]
+
+// 将3号位复制到0号位
+[].copyWithin.call({length: 5, 3: 1}, 0, 3)
+// {0: 1, 3: 1, length: 5}
+
+// 将2号位到数组结束，复制到0号位
+let i32a = new Int32Array([1, 2, 3, 4, 5]);
+i32a.copyWithin(0, 2);
+// Int32Array [3, 4, 5, 4, 5]
+
+// 对于没有部署 TypedArray 的 copyWithin 方法的平台
+// 需要采用下面的写法
+[].copyWithin.call(new Int32Array([1, 2, 3, 4, 5]), 0, 3, 4);
+// Int32Array [4, 2, 3, 4, 5]
+```
 
 
+
+## 5. 数组实例的 find() 和 findIndex()
+
+ 数组实例的`find`方法，用于找出第一个符合条件的数组成员。它的参数是一个回调函数，所有数组成员依次执行该回调函数，直到找出第一个返回值为`true`的成员，然后返回该成员。如果没有符合条件的成员，则返回`undefined`。 
+
+```javascript
+[1, 4, -5, 10].find((n) => n < 0)
+// -5
+```
+
+ 上面代码找出数组中第一个小于 0 的成员。 
+
+```javascript
+[1, 5, 10, 15].find(function(value, index, arr) {
+  return value > 9;
+}) // 10
+```
+
+ 上面代码中，`find`方法的回调函数可以接受三个参数，依次为当前的值、当前的位置和原数组。 
+
+数组实例的`findIndex`方法的用法与`find`方法非常类似，返回第一个符合条件的数组成员的位置，如果所有成员都不符合条件，则返回`-1`。
+
+```javascript
+[1, 5, 10, 15].findIndex(function(value, index, arr) {
+  return value > 9;
+}) // 2
+```
+
+ 这两个方法都可以接受第二个参数，用来绑定回调函数的`this`对象。 
+
+```javascript
+function f(v){
+  return v > this.age;
+}
+let person = {name: 'John', age: 20};
+[10, 12, 26, 15].find(f, person);    // 26
+```
+
+ 上面的代码中，`find`函数接收了第二个参数`person`对象，回调函数中的`this`对象指向`person`对象。 
+
+ 另外，这两个方法都可以发现`NaN`，弥补了数组的`indexOf`方法的不足。 
+
+```javascript
+[NaN].indexOf(NaN)
+// -1
+
+[NaN].findIndex(y => Object.is(NaN, y))
+// 0
+```
+
+ 上面代码中，`indexOf`方法无法识别数组的`NaN`成员，但是`findIndex`方法可以借助`Object.is`方法做到。 
+
+
+
+## 6. 数组实例的 fill()
+
+`fill` 方法使用给定值，填充一个数组。
+
+```javascript
+['a', 'b', 'c'].fill(7)
+// [7, 7, 7]
+
+new Array(3).fill(7)
+// [7, 7, 7]
+```
+
+上面代码表明，`fill`方法用于空数组的初始化非常方便。数组中已有的元素，会被全部抹去。
+
+ `fill`方法还可以接受第二个和第三个参数，用于指定填充的起始位置和结束位置。 
+
+```javascript
+['a', 'b', 'c'].fill(7, 1, 2)
+// ['a', 7, 'c']
+```
+
+ 上面代码表示，`fill`方法从 1 号位开始，向原数组填充 7，到 2 号位之前结束。 
+
+ 注意，如果填充的类型为对象，那么被赋值的是同一个内存地址的对象，而不是深拷贝对象。 
+
+```javascript
+let arr = new Array(3).fill({name: "Mike"});
+arr[0].name = "Ben";
+arr
+// [{name: "Ben"}, {name: "Ben"}, {name: "Ben"}]
+
+let arr = new Array(3).fill([]);
+arr[0].push(5);
+arr
+// [[5], [5], [5]]
+```
+
+
+
+## 7. 数组实例的 entries(), keys() 和 values()
+
+ ES6 提供三个新的方法——`entries()`，`keys()`和`values()`——用于遍历数组。它们都返回一个遍历器对象（详见《Iterator》一章），可以用`for...of`循环进行遍历，唯一的区别是`keys()`是对键名的遍历、`values()`是对键值的遍历，`entries()`是对键值对的遍历。 
+
+```javascript
+for (let index of ['a', 'b'].keys()) {
+  console.log(index);
+}
+// 0
+// 1
+
+for (let elem of ['a', 'b'].values()) {
+  console.log(elem);
+}
+// 'a'
+// 'b'
+
+for (let [index, elem] of ['a', 'b'].entries()) {
+  console.log(index, elem);
+}
+// 0 "a"
+// 1 "b"
+```
+
+ 如果不使用`for...of`循环，可以手动调用遍历器对象的`next`方法，进行遍历。 
+
+```javascript
+let letter = ['a', 'b', 'c'];
+let entries = letter.entries();
+console.log(entries.next().value); // [0, 'a']
+console.log(entries.next().value); // [1, 'b']
+console.log(entries.next().value); // [2, 'c']
+```
+
+
+
+## 8. 数组实例的 includes()
+
+ `Array.prototype.includes`方法返回一个布尔值，表示某个数组是否包含给定的值，与字符串的`includes`方法类似。ES2016 引入了该方法。 
+
+```javascript
+[1, 2, 3].includes(2)     // true
+[1, 2, 3].includes(4)     // false
+[1, 2, NaN].includes(NaN) // true
+```
+
+ 该方法的第二个参数表示搜索的起始位置，默认为`0`。如果第二个参数为负数，则表示倒数的位置，如果这时它大于数组长度（比如第二个参数为`-4`，但数组长度为`3`），则会重置为从`0`开始。 
+
+```javascript
+[1, 2, 3].includes(3, 3);  // false
+[1, 2, 3].includes(3, -1); // true
+```
+
+ 没有该方法之前，我们通常使用数组的`indexOf`方法，检查是否包含某个值。 
+
+```javascript
+if (arr.indexOf(el) !== -1) {
+  // ...
+}
+```
+
+`indexOf` 方法有两个缺点，一是不够语义化，它的含义是找到参数值的第一个出现位置，所以要去比较是否不等于 `-1`，表达起来不够直观。二是，它内部使用严格相等运算符（`===`） 进行判断，这会导致对 `NaN` 的误判
+
+```javascript
+[NaN].indexOf(NaN)
+// -1
+```
+
+ `includes`使用的是不一样的判断算法，就没有这个问题。 
+
+```javascript
+[NaN].includes(NaN)
+// true
+```
+
+ 下面代码用来检查当前环境是否支持该方法，如果不支持，部署一个简易的替代版本。 
+
+```javascript
+const contains = (() =>
+  Array.prototype.includes
+    ? (arr, value) => arr.includes(value)
+    : (arr, value) => arr.some(el => el === value)
+)();
+contains(['foo', 'bar'], 'baz'); // => false
+```
+
+ 另外，Map 和 Set 数据结构有一个`has`方法，需要注意与`includes`区分。 
+
+- Map 结构的 `has` 方法，是用来查找键名的，比如 `Map.prototype.has(key)`、`WeakMap.prototype.has`、 `Reflect.has(target, propertyKey)`。
+- Set 结构的 `has` 方法，是用来查找值的，比如 `Set.prototype.has(value)` 、`WeakSet.prototype.has(value)`。
+
+
+
+## 9. 数组实例的 flat(), flatMap()
+
+数组的成员有时还是数组，`Array.prototype.flat()`用于将嵌套的数组“拉平”，变成一维的数组。该方法返回一个新数组，对原数据没有影响。
+
+```javascript
+[1, 2, [3, 4]].flat()
+// [1, 2, 3, 4]
+```
+
+ 上面代码中，原数组的成员里面有一个数组，`flat()`方法将子数组的成员取出来，添加在原来的位置。 
+
+ `flat()`默认只会“拉平”一层，如果想要“拉平”多层的嵌套数组，可以将`flat()`方法的参数写成一个整数，表示想要拉平的层数，默认为1。 
+
+```javascript
+[1, 2, [3, [4, 5]]].flat()
+// [1, 2, 3, [4, 5]]
+
+[1, 2, [3, [4, 5]]].flat(2)
+// [1, 2, 3, 4, 5]
+```
+
+ 上面代码中，`flat()`的参数为2，表示要“拉平”两层的嵌套数组。 
+
+ 如果不管有多少层嵌套，都要转成一维数组，可以用`Infinity`关键字作为参数。 
+
+```javascript
+[1, [2, [3]]].flat(Infinity)
+// [1, 2, 3]
+```
+
+ 如果原数组有空位，`flat()`方法会跳过空位。 
+
+```javascript
+[1, 2, , 4, 5].flat()
+// [1, 2, 4, 5]
+```
+
+`flatMap()` 方法对原数组的每一个成员执行一个函数，（相当于执行`Array.prototype.map()`）, 然后对返回值组成的数组执行 `flat()` 方法。该方法返回一个新数组，不改变原数组。
+
+```javascript
+// 相当于 [[2, 4], [3, 6], [4, 8]].flat()
+[2, 3, 4].flatMap((x) => [x, x * 2])
+// [2, 4, 3, 6, 4, 8]
+```
+
+ `flatMap()`只能展开一层数组。 
+
+```javascript
+// 相当于 [[[2]], [[4]], [[6]], [[8]]].flat()
+[1, 2, 3, 4].flatMap(x => [[x * 2]])
+// [[2], [4], [6], [8]]
+```
+
+ 上面代码中，遍历函数返回的是一个双层的数组，但是默认只能展开一层，因此`flatMap()`返回的还是一个嵌套数组。 
+
+ `flatMap()`方法的参数是一个遍历函数，该函数可以接受三个参数，分别是当前数组成员、当前数组成员的位置（从零开始）、原数组。 
+
+```javascript
+arr.flatMap(function callback(currentValue[, index[, array]]) {
+  // ...
+}[, thisArg])
+```
+
+ `flatMap()`方法还可以有第二个参数，用来绑定遍历函数里面的`this`。 
+
+
+
+## 10. 数组的空位
+
+数组的空位指，数组的某一个位置没有任何职。比如，`Array` 构造函数返回的数组都是空位。
+
+```javascript
+Array(3) // [, , ,]
+```
+
+上面代码中，`Array(3)`返回一个具有 3 个空位的数组。
+
+ 注意，空位不是`undefined`，一个位置的值等于`undefined`，依然是有值的。空位是没有任何值，`in`运算符可以说明这一点。 
+
+```javascript
+0 in [undefined, undefined, undefined] // true
+0 in [, , ,] // false
+```
+
+ 上面代码说明，第一个数组的 0 号位置是有值的，第二个数组的 0 号位置没有值。 
+
+ ES5 对空位的处理，已经很不一致了，大多数情况下会忽略空位。 
+
+- `forEach()`, `filter()`, `reduce()`, `every()` 和`some()`都会跳过空位。
+- `map()`会跳过空位，但会保留这个值
+- `join()`和`toString()`会将空位视为`undefined`，而`undefined`和`null`会被处理成空字符串。
+
+```javascript
+// forEach 方法
+// forEach方法
+[,'a'].forEach((x,i) => console.log(i)); // 1
+
+// filter方法
+['a',,'b'].filter(x => true) // ['a','b']
+
+// every方法
+[,'a'].every(x => x==='a') // true
+
+// reduce方法
+[1,,2].reduce((x,y) => x+y) // 3
+
+// some方法
+[,'a'].some(x => x !== 'a') // false
+
+// map方法
+[,'a'].map(x => 1) // [,1]
+
+// join方法
+[,'a',undefined,null].join('#') // "#a##"
+
+// toString方法
+[,'a',undefined,null].toString() // ",a,,"
+```
+
+ ES6 则是明确将空位转为`undefined`。 
+
+ `Array.from`方法会将数组的空位，转为`undefined`，也就是说，这个方法不会忽略空位。 
+
+```javascript
+Array.from(['a',,'b'])
+// [ "a", undefined, "b" ]
+```
+
+ 扩展运算符（`...`）也会将空位转为`undefined`。 
+
+```javascript
+[...['a',,'b']]
+// [ "a", undefined, "b" ]
+```
+
+`copyWithin()`会连空位一起拷贝。
+
+```javascript
+[,'a','b',,].copyWithin(2,0) // [,"a",,"a"]
+```
+
+`fill()`会将空位视为正常的数组位置。
+
+```javascript
+new Array(3).fill('a') // ["a","a","a"]
+```
+
+`for...of`循环也会遍历空位。
+
+```javascript
+let arr = [, ,];
+for (let i of arr) {
+  console.log(1);
+}
+// 1
+// 1
+```
+
+ 上面代码中，数组`arr`有两个空位，`for...of`并没有忽略它们。如果改成`map`方法遍历，空位是会跳过的。 
+
+ `entries()`、`keys()`、`values()`、`find()`和`findIndex()`会将空位处理成`undefined`。 
+
+```javascript
+// entries()
+[...[,'a'].entries()] // [[0,undefined], [1,"a"]]
+
+// keys()
+[...[,'a'].keys()] // [0,1]
+
+// values()
+[...[,'a'].values()] // [undefined,"a"]
+
+// find()
+[,'a'].find(x => true) // undefined
+
+// findIndex()
+[,'a'].findIndex(x => true) // 0
+```
+
+ 由于空位的处理规则非常不统一，所以建议避免出现空位。 
+
+
+
+## 11. Array.prototype.sort() 的排序稳定性
+
+ 排序稳定性（stable sorting）是排序算法的重要属性，指的是排序关键字相同的项目，排序前后的顺序不变。 
+
+```javascript
+const arr = [
+  'peach',
+  'straw',
+  'apple',
+  'spork'
+];
+
+const stableSorting = (s1, s2) => {
+  if (s1[0] < s2[0]) return -1;
+  return 1;
+};
+
+arr.sort(stableSorting)
+// ["apple", "peach", "straw", "spork"]
+```
+
+ 上面代码对数组`arr`按照首字母进行排序。排序结果中，`straw`在`spork`的前面，跟原始顺序一致，所以排序算法`stableSorting`是稳定排序。 
+
+ 上面代码中，排序结果是`spork`在`straw`前面，跟原始顺序相反，所以排序算法`unstableSorting`是不稳定的。 
+
+ 常见的排序算法之中，插入排序、合并排序、冒泡排序等都是稳定的，堆排序、快速排序等是不稳定的。不稳定排序的主要缺点是，多重排序时可能会产生问题。假设有一个姓和名的列表，要求按照“姓氏为主要关键字，名字为次要关键字”进行排序。开发者可能会先按名字排序，再按姓氏进行排序。如果排序算法是稳定的，这样就可以达到“先姓氏，后名字”的排序效果。如果是不稳定的，就不行。 
+
+ 早先的 ECMAScript 没有规定，`Array.prototype.sort()`的默认排序算法是否稳定，留给浏览器自己决定，这导致某些实现是不稳定的。[ES2019](https://github.com/tc39/ecma262/pull/1340) 明确规定，`Array.prototype.sort()`的默认排序算法必须稳定。这个规定已经做到了，现在 JavaScript 各个主要实现的默认排序算法都是稳定的。 
