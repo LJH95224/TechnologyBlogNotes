@@ -15,7 +15,8 @@ module.exports = [
     text: '技术笔记',
     items: [
       { text: 'Linux', link: '/notes/linux/' },
-      { text: 'android', link: '/notes/android/' },
+      // { text: 'android', link: '/notes/android/' },
+      { text: 'cordova', link: '/notes/cordova/'},
       { text: 'Markdown', link: '/notes/Markdown/'},
       { text: 'vue技术栈', link: '/notes/vue/' },
       { text: 'typeScript', link: '/notes/typeScript/' },

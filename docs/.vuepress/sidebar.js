@@ -229,5 +229,10 @@ module.exports = {
   '/notes/problem/': [
     'deep',
     'element'
+  ],
+  '/notes/cordova/': [
+    'cordova1',
+    'cordova2',
+    'cordova3'
   ]
 }
