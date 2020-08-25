@@ -106,3 +106,24 @@ cordova requiremens
 ![1597802092720](../../.vuepress/public/image/cordova/1597802092720.png)
 
 ![1597803587554](../../.vuepress/public/image/cordova/1597803587554.png)
+
+
+
+## 7. Vue + Cordova 里面使用静态资源图片的时候的使用方法
+
+### 1.如果图片在 src/assets 里面
+
+那么打包的时候，会将 图片，打包到 www 里面的img文件夹中，使用的时候注意路径问题，
+
+![1597991813041](../../.vuepress/public/image/cordova/1597991813041.png)
+
+
+
+### 2. 如果图片在 public 里面
+
+那么打包的时候，会将图片打包到 www 文件里面，打包的时候，注意路径问题
+
+![1597991921715](../../.vuepress/public/image/cordova/1597991921715.png)
+
+
+
