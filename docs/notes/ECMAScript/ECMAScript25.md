@@ -111,6 +111,84 @@ https://www.jianshu.com/p/eece86baec10
 
 ![1602231345373](../../.vuepress/public/image/cordova/1602231345373.png)
 
+#### 先序遍历（根左右）
+
+![1602235545974](../../.vuepress/public/image/cordova/1602235545974.png)
+
+```javascript
+const result = [];
+//先序遍历
+function preOrderTraversal(node){
+    if(node){
+        result.push(node.value);
+        if(node.left) preOrderTraversal(node.left);
+        if(node.right) preOrderTraversal(node.right);
+    }
+}
+//先序遍历非递归
+function preOrderTraversalNonRecursive(nodes){
+    const stack = [];
+    stack.push(nodes);
+    while(stack.length){
+        let node = stack.pop();
+        result.push(node.value);
+        if(node.right) stack.push(node.right);
+        if(node.left) stack.push(node.left);
+    }
+}
+```
+
+#### 中序遍历（左根右 ）
+
+![1602235654607](../../.vuepress/public/image/cordova/1602235654607.png)
+
+```javascript
+const result = [];
+//中序遍历
+function inOrderTraversal(node) {
+    if(node){
+        if(node.left) inOrderTraversal(node.left);
+        result.push(node.value);
+        if(node.right) inOrderTraversal(node.right);
+    }
+}
+//中序遍历非递归
+function inOrderTraversalNonRecursive(node) {
+    const stack = [];
+    while(stack.length || node) {
+        // 先检测node节点，将node节点的左节点赋值给node 进行循环，没有左节点之后，添加根节点，然后循环右节点
+        if(node) {
+            stack.push(node);
+            node = node.left;
+        } else {
+            node = stack.pop();
+            result.push(node.value);
+            node = node.right;
+        }
+    }
+}
+```
+
+#### 后序遍历
+
+![1602235870726](../../.vuepress/public/image/cordova/1602235870726.png)
+
+```javascript
+const result = [];
+//后序遍历
+function postOrderTraversal(node) {
+    if(node){
+        if(node.left) postOrderTraversal(node.left);
+        if(node.right) postOrderTraversal(node.right);
+        result.push(node.value);
+    }
+}
+```
+
+
+
+
+
 
 
 ## 图
