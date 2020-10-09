@@ -8,7 +8,7 @@ module.exports = [
     items: [
       { text: '常用问题', link: '/notes/problem/' },
       { text: '公用方法', link: '/notes/commonMethods/' },
-      { text: 'vscode', link: '/notes/vscodePage/'}
+      { text: 'vscode', link: '/notes/vscodePage/'},
       { text: '大文件上传和断点续传', link:'' }
     ]
   },
