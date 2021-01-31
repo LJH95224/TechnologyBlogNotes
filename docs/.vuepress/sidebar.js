@@ -236,5 +236,8 @@ module.exports = {
     'cordova1',
     'cordova2',
     'cordova3'
+  ],
+  '/interview/vue/': [
+    'interview1.md'
   ]
 }
