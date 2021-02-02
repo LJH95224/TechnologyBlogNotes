@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/LJH95224/TechnologyBlogNotes/issues"
   },
-  "homepage": "https://github.com/LJH95224/TechnologyBlogNotes#readme"
+  "homepage": "https://github.com/LJH95224/TechnologyBlogNotes#readme",
+  "devDependencies": {
+    "vuepress": "^1.7.1"
+  }
 }
