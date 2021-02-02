@@ -239,5 +239,8 @@ module.exports = {
   ],
   '/interview/vue/': [
     'interview1.md'
+  ],
+  '/notes/base/': [
+    'css1.md'
   ]
 }
