@@ -238,7 +238,8 @@ module.exports = {
     'cordova3'
   ],
   '/interview/vue/': [
-    'interview1.md'
+    'interview1.md',
+    'interview2.md'
   ],
   '/notes/base/': [
     'css1.md'
