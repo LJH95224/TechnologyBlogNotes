@@ -457,3 +457,183 @@ const createDirIfNotExists = dir => (!fs.existsSync(dir) ? fs.mkdirSync(dir) : u
 createDirIfNotExists('test'); 
 ```
 
+
+
+#### 24、随机获取布尔值（true/false）
+
+ 此函数将使用Math.random()方法返回布尔值（真或假）。Math.random将创建一个介于0和1之间的随机数，然后我们检查它是否大于或小于0.5。这意味着你有各50％的机会得到真或假值。 
+
+```javascript
+const randomBoolean = () => Math.random() >= 0.5;
+
+console.log(randomBoolean())
+// result: true和false的概率都为50%
+```
+
+
+
+#### 25、判断给的日期是否为工作日
+
+ 使用此方法，你将可以判断函数中提供的日期是工作日还是双休日。 
+
+```javascript
+const isWeekday = (date) => date.getDay() % 6 !== 0;
+console.log(isWeekday(new Date(2021, 0, 11)));
+// Result: true (Monday)
+console.log(isWeekday(new Date(2021, 0, 10)));
+// Result: false (Sunday)
+```
+
+
+
+#### 26、 反转字符串
+
+ 用不同的方式可以反转字符串。可以使用最简单的split()，reverse()和join()方法。 
+
+```javascript
+const reverse = str => str.split('').reverse().join('');
+reverse('hello world');     
+// Result: 'dlrow olleh'
+```
+
+
+
+#### 27、判断当前选项卡是否在视图/焦点中
+
+ 我们可以使用document.hidden属性检查当前标签页是否在视图/焦点中。 
+
+```javascript
+const isBrowserTabInView = () => document.hidden;
+isBrowserTabInView();
+// Result: returns true or false depending on if tab is in view / focus
+```
+
+
+
+#### 28、判断数字是偶数还是奇数
+
+ 可以使用模运算符（%）解决的超简单任务。如果你不太熟悉它，这是有关Stack Overflow的直观说明（地址：https://stackoverflow.com/questions/17524673/understanding-the-modulus-operator/17525046#17525046） 
+
+```javascript
+const isEven = num => num % 2 === 0;
+console.log(isEven(2));
+// Result: true
+console.log(isEven(3));
+// Result: false
+```
+
+
+
+#### 29、从日期获取时间
+
+ 通过使用toTimeString()方法并将字符串切片用在正确的位置，我们可以从提供的日期中获取时间，也可以获取当前时间。 
+
+```javascript
+const timeFromDate = date => date.toTimeString().slice(0, 8);
+console.log(timeFromDate(new Date(2021, 0, 10, 17, 30, 0))); 
+// Result: "17:30:00"
+console.log(timeFromDate(new Date()));
+// Result: 09:13:29
+```
+
+
+
+#### 30、将数字四舍五入到固定小数点
+
+ 使用该Math.pow()方法，我们可以将数字四舍五入到函数中提供的某个小数点。 
+
+```javascript
+const toFixed = (n, fixed) => ~~(Math.pow(10, fixed) * n) / Math.pow(10, fixed);
+// Examples
+toFixed(25.198726354, 1);       // 25.1
+toFixed(25.198726354, 2);       // 25.19
+toFixed(25.198726354, 3);       // 25.198
+toFixed(25.198726354, 4);       // 25.1987
+toFixed(25.198726354, 5);       // 25.19872
+toFixed(25.198726354, 6);       // 25.198726
+```
+
+
+
+#### 31、检查元素当前是否处于焦点
+
+ 我们可以使用document.activeElement属性检查元素当前是否处于焦点。 
+
+```javascript
+const elementIsInFocus = (el) => (el === document.activeElement);
+elementIsInFocus(anyElement)
+// Result: will return true if in focus, false if not in focus
+```
+
+
+
+#### 32、检查当前用户是否支持触摸事件
+
+```javascript
+const touchSupported = () => {  
+    ('ontouchstart' in window || window.DocumentTouch && document instanceof window.DocumentTouch);}
+console.log(touchSupported());
+// Result: will return true if touch events are supported, false if not
+```
+
+
+
+#### 33、检查当前用户是否在Apple设备上
+
+ 我们可以navigator.platform用来检查当前用户是否在Apple设备上。 
+
+```javascript
+const isAppleDevice = /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+console.log(isAppleDevice);
+// Result: will return true if user is on an Apple device
+```
+
+
+
+#### 34 、滚动到页面顶部
+
+window.scrollTo()方法将使用x和y坐标滚动到。如果将它们设置为零和零，则将滚动到页面顶部。
+
+注意：Internet Explorer不支持该.scrollTo()方法。
+
+```JavaScript
+const goToTop = () => window.scrollTo(0, 0);
+goToTop();
+// Result: will scroll the browser to the top of the page
+```
+
+
+
+#### 35、获取参数平均值
+
+我们可以使用reduce方法获取在此函数中提供的参数的平均值。
+
+  ```javascript
+const average = (...args) => args.reduce((a, b) => a + b) / args.length;
+average(1, 2, 3, 4);
+// Result: 2.5
+  ```
+
+
+
+#### 36、转换华氏/摄氏
+
+```javascript
+// 摄氏度转换为华氏
+const celsiusToFahrenheit = (celsius) => celsius * 9/5 + 32;
+// 华氏温度转换为摄氏温度
+const fahrenheitToCelsius = (fahrenheit) => (fahrenheit - 32) * 5/9;
+
+// Examples
+celsiusToFahrenheit(15);    // 59
+celsiusToFahrenheit(0);     // 32
+celsiusToFahrenheit(-20);   // -4
+
+fahrenheitToCelsius(59);    // 15
+fahrenheitToCelsius(32);    // 0
+```
+
+
+
+
+
