@@ -232,6 +232,9 @@ module.exports = {
     'deep',
     'element'
   ],
+  '/interview/javascript/': [
+  	'JavaScript1.md'
+  ],
   '/notes/cordova/': [
     'cordova1',
     'cordova2',
