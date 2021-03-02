@@ -4,7 +4,7 @@
 
 > 触发高频事件后 n 秒内函数只会执行一次，如果 n 秒内高频事件再次被触发，则重新计算时间
 
-![1022151-20180613144209623-862434090](F:\myGIthub\TechnologyBlogNotes\docs\.vuepress\public\image\css\1612313541971.png)
+![1022151-20180613144209623-862434090](../../.vuepress/public/image/css/1612313541971.png)
 
 - 思路
 
@@ -49,7 +49,7 @@ function debounce (fn, delay = 500, isImmediate = false) {
 
 > 高频事件触发，但在 n 秒内只会执行一次，所以节流会稀释函数的执行频率
 
-![1022151-20180613144342847-660853255](F:\myGIthub\TechnologyBlogNotes\docs\.vuepress\public\image\css\1022151-20180613144342847-660853255.jpg)
+![1022151-20180613144342847-660853255](../../.vuepress/public/image/css/1022151-20180613144342847-660853255.jpg)
 
 - 思路
 
