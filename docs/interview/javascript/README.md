@@ -34,7 +34,7 @@ typeof 不能识别 null，Array和 object
 // 除了 == null 之外，其他都一律用 === ， 例如：
 const obj = { x: 100 }
 if (obj.a == null) {}
-// 相当于：
+// 相当于：用来判断 是不是 null 或者 undefined
 // if (obj.a === null || obj.a === undefined) {}
 ```
 

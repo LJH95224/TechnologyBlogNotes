@@ -158,7 +158,7 @@ console.log(null === undefined) // false
 - **typeof null** 返回的结果是 **"object"**
 - typeof undefined 返回的结果是 "undefined"
 
->  虽然null 和 undefined 同为number数据类型，但是通过typeof检测的值不是number，而且也不相同。 
+
 
 - typeof null 结果是 "object"
 - typeof [] 结果是 "object"

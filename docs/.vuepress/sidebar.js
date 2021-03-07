@@ -233,7 +233,12 @@ module.exports = {
     'element'
   ],
   '/interview/javascript/': [
-  	'JavaScript1.md'
+  	'JavaScript1.md',
+  	'JavaScript2.md',
+  	'JavaScript3.md',
+  	'JavaScript4.md',
+  	'JavaScript5.md',
+  	'JavaScript6.md',
   ],
   '/notes/cordova/': [
     'cordova1',
