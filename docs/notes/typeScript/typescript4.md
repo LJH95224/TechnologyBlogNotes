@@ -166,7 +166,7 @@ tuple = ['a', 2] // error  Property '2' is missing in type '[string, number]' bu
 可以看到，上面我们定义了一个元组 tuple，它包含三个元素，且每个元素的类型是固定的。当我们为 tuple 赋值
 时：各个位置上的元素类型都要对应，元素个数也要一致。
 
-我们还可给打个元素赋值：
+我们还可给某个元素赋值：
 
 ```typescript
 tuple[1] = 3;

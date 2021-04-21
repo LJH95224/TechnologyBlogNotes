@@ -240,6 +240,7 @@ module.exports = {
   	'JavaScript5',
   	'JavaScript6',
   	'JavaScript7',
+  	'JavaScript8',
   ],
   '/notes/cordova/': [
     'cordova1',
