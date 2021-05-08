@@ -366,4 +366,214 @@ let person = new Proxy({}, validator)
 
 ![1620380899179](F:\myGIthub\TechnologyBlogNotes\docs\.vuepress\public\image\es6\1620380899179.png)
 
+> 注：Number.isInteger 判断目标值是否为整数，如果目标值为整数，则返回true，否则返回false
+>
+> 如果值为 NaN 或者 Infinity 则返回 false，带小数点的整数也可以判断为 true
+>
+> ```js
+> Number.isInteger(0);         // true
+> Number.isInteger(1);         // true
+> Number.isInteger(-100000);   // true
+> Number.isInteger(99999999999999999999999); // true
+> 
+> Number.isInteger(0.1);       // false
+> Number.isInteger(Math.PI);   // false
+> 
+> Number.isInteger(NaN);       // false
+> Number.isInteger(Infinity);  // false
+> Number.isInteger(-Infinity); // false
+> Number.isInteger('10');      // false
+> Number.isInteger(true);      // false
+> Number.isInteger(false);     // false
+> Number.isInteger([1]);       // false
+> 
+> Number.isInteger(5.0);       // true
+> Number.isInteger(5.000000000000001); // false
+> Number.isInteger(5.0000000000000001); // true
+> ```
+
  上面代码中，由于设置了存值函数`set`，任何不符合要求的`age`属性赋值，都会抛出一个错误，这是数据验证的一种实现方法。利用`set`方法，还可以数据绑定，即每当对象发生变化时，会自动更新 DOM。 
+
+ 有时，我们会在对象上面设置内部属性，属性名的第一个字符使用下划线开头，表示这些属性不应该被外部使用。结合`get`和`set`方法，就可以做到防止这些内部属性被外部读写。
+
+```js
+const handler = {
+				get(target, key) {
+					invariant(key, 'get')
+					return target[key]
+				},
+				set(target, key, value) {
+					invariant(key, 'set')
+					target[key] = value
+					return true
+				}
+			}
+			function invariant(key, action) {
+				if (key[0] === '_') {
+					throw new Error(`Invalid attempt to ${action} private "${key}" property`);
+				}
+			}
+			const target = {}
+			const proxy = new Proxy(target, handler)
+```
+
+
+
+![1620437943507](F:\myGIthub\TechnologyBlogNotes\docs\.vuepress\public\image\es6\1620437943507.png) 
+
+ 上面代码中，只要读写的属性名的第一个字符是下划线，一律抛错，从而达到禁止读写内部属性的目的。 
+
+ 下面是`set`方法第四个参数的例子。 
+
+```javascript
+const handler = {
+  set: function(obj, prop, value, receiver) {
+    obj[prop] = receiver;
+    return true;
+  }
+};
+const proxy = new Proxy({}, handler);
+proxy.foo = 'bar';
+proxy.foo === proxy // true
+```
+
+ 上面代码中，`set`方法的第四个参数`receiver`，指的是原始的操作行为所在的那个对象，一般情况下是`proxy`实例本身，请看下面的例子。 
+
+```javascript
+const handler = {
+  set: function(obj, prop, value, receiver) {
+    obj[prop] = receiver;
+    return true;
+  }
+};
+const proxy = new Proxy({}, handler);
+const myObj = {};
+Object.setPrototypeOf(myObj, proxy);
+
+myObj.foo = 'bar';
+myObj.foo === myObj // true
+```
+
+ 上面代码中，设置`myObj.foo`属性的值时，`myObj`并没有`foo`属性，因此引擎会到`myObj`的原型链去找`foo`属性。`myObj`的原型对象`proxy`是一个 Proxy 实例，设置它的`foo`属性会触发`set`方法。这时，第四个参数`receiver`就指向原始赋值行为所在的对象`myObj`。 
+
+ 注意，如果目标对象自身的某个属性不可写，那么`set`方法将不起作用。 
+
+```javascript
+const obj = {};
+Object.defineProperty(obj, 'foo', {
+  value: 'bar',
+  writable: false
+});
+
+const handler = {
+  set: function(obj, prop, value, receiver) {
+    obj[prop] = 'baz';
+    return true;
+  }
+};
+
+const proxy = new Proxy(obj, handler);
+proxy.foo = 'baz';
+proxy.foo // "bar"
+```
+
+ 上面代码中，`obj.foo`属性不可写，Proxy 对这个属性的`set`代理将不会生效。 
+
+ 注意，`set`代理应当返回一个布尔值。严格模式下，`set`代理如果没有返回`true`，就会报错。 
+
+```js
+'use strict';
+const handler = {
+  set: function(obj, prop, value, receiver) {
+    obj[prop] = receiver;
+    // 无论有没有下面这一行，都会报错
+    return false;
+  }
+};
+const proxy = new Proxy({}, handler);
+proxy.foo = 'bar';
+// TypeError: 'set' on proxy: trap returned falsish for property 'foo'
+```
+
+ 上面代码中，严格模式下，`set`代理返回`false`或者`undefined`，都会报错。 
+
+### apply()
+
+`apply` 方法拦截函数的调用，`call` 和 `apply` 操作。
+
+`apply` 方法可以接受三个参数，分别是目标对象、目标对象的上下文对象（`this`）和目标对象的参数数组。
+
+```js
+var handler = {
+    apply (target, ctx, args) {
+        return Reflect.apply(...arguments)
+    }
+}
+```
+
+ 下面是一个例子。 
+
+```javascript
+var target = function () { return 'I am the target'; };
+var handler = {
+  apply: function () {
+    return 'I am the proxy';
+  }
+};
+
+var p = new Proxy(target, handler);
+
+p()
+// "I am the proxy"
+```
+
+ 上面代码中，变量`p`是 Proxy 的实例，当它作为函数调用时（`p()`），就会被`apply`方法拦截，返回一个字符串。 
+
+ 下面是另外一个例子。 
+
+```js
+var twice = {
+  apply (target, ctx, args) {
+    return Reflect.apply(...arguments) * 2;
+  }
+};
+function sum (left, right) {
+  return left + right;
+};
+var proxy = new Proxy(sum, twice);
+proxy(1, 2) // 6
+proxy.call(null, 5, 6) // 22
+proxy.apply(null, [7, 8]) // 30
+```
+
+上面代码中，每当执行`proxy`函数（直接调用或`call`和`apply`调用），就会被`apply`方法拦截。
+
+另外，直接调用`Reflect.apply`方法，也会被拦截。
+
+```javascript
+Reflect.apply(proxy, null, [9, 10]) // 38
+```
+
+
+
+### has()
+
+`has()`方法用来拦截`HasProperty`操作，即判断对象是否具有某个属性时，这个方法会生效。典型的操作就是`in`运算符。
+
+`has()`方法可以接受两个参数，分别是目标对象、需查询的属性名。
+
+ 下面的例子使用`has()`方法隐藏某些属性，不被`in`运算符发现。 
+
+```javascript
+var handler = {
+  has (target, key) {
+    if (key[0] === '_') {
+      return false;
+    }
+    return key in target;
+  }
+};
+var target = { _prop: 'foo', prop: 'foo' };
+var proxy = new Proxy(target, handler);
+'_prop' in proxy // false
+```
