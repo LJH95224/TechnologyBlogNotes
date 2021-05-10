@@ -308,7 +308,7 @@ const instance = Reflect.construct(Greeting, ['张三']);
 
  `Reflect.getPrototypeOf`方法用于读取对象的`__proto__`属性，对应`Object.getPrototypeOf(obj)`。 
 
-```js
+```javascript
 const myObj = new FancyThing();
 
 // 旧写法
@@ -318,14 +318,59 @@ Object.getPrototypeOf(myObj) === FancyThing.prototype;
 Reflect.getPrototypeOf(myObj) === FancyThing.prototype;
 ```
 
- `Reflect.getPrototypeOf`和`Object.getPrototypeOf`的一个区别是，如果参数不是对象，`Object.getPrototypeOf`会将这个参数转为对象，然后再运行，而`Reflect.getPrototypeOf`会报错。 
+`Reflect.getPrototypeOf`和`Object.getPrototypeOf`的一个区别是，如果参数不是对象，`Object.getPrototypeOf`会将这个参数转为对象，然后再运行，而`Reflect.getPrototypeOf`会报错。
 
-```js
+```javascript
 Object.getPrototypeOf(1) // Number {[[PrimitiveValue]]: 0}
 Reflect.getPrototypeOf(1) // 报错
 ```
 
 
+
+### Reflect.setPrototypeOf(obj, newProto)
+
+`Reflect.setPrototypeOf`方法用于设置目标对象的原型（prototype），对应`Object.setPrototypeOf(obj, newProto)`方法。它返回一个布尔值，表示是否设置成功。
+
+```javascript
+const myObj = {};
+
+// 旧写法
+Object.setPrototypeOf(myObj, Array.prototype);
+
+// 新写法
+Reflect.setPrototypeOf(myObj, Array.prototype);
+
+myObj.length // 0
+```
+
+如果无法设置目标对象的原型（比如，目标对象禁止扩展），`Reflect.setPrototypeOf`方法返回`false`。
+
+```javascript
+Reflect.setPrototypeOf({}, null)
+// true
+Reflect.setPrototypeOf(Object.freeze({}), null)
+// false
+```
+
+如果第一个参数不是对象，`Object.setPrototypeOf`会返回第一个参数本身，而`Reflect.setPrototypeOf`会报错。
+
+```javascript
+Object.setPrototypeOf(1, {})
+// 1
+
+Reflect.setPrototypeOf(1, {})
+// TypeError: Reflect.setPrototypeOf called on non-object
+```
+
+如果第一个参数是`undefined`或`null`，`Object.setPrototypeOf`和`Reflect.setPrototypeOf`都会报错。
+
+```javascript
+Object.setPrototypeOf(null, {})
+// TypeError: Object.setPrototypeOf called on null or undefined
+
+Reflect.setPrototypeOf(null, {})
+// TypeError: Reflect.setPrototypeOf called on non-object
+```
 
 ### Reflect.apply(func, thisArg, args)
 
@@ -347,11 +392,181 @@ const oldest = Reflect.apply(Math.max, Math, ages);
 const type = Reflect.apply(Object.prototype.toString, youngest, []);
 ```
 
+### Reflect.defineProperty(target, propertyKey, attributes)
+
+`Reflect.defineProperty`方法基本等同于`Object.defineProperty`，用来为对象定义属性。未来，后者会被逐渐废除，请从现在开始就使用`Reflect.defineProperty`代替它。
+
+```javascript
+function MyDate() {
+  /*…*/
+}
+
+// 旧写法
+Object.defineProperty(MyDate, 'now', {
+  value: () => Date.now()
+});
+
+// 新写法
+Reflect.defineProperty(MyDate, 'now', {
+  value: () => Date.now()
+});
+```
+
+如果`Reflect.defineProperty`的第一个参数不是对象，就会抛出错误，比如`Reflect.defineProperty(1, 'foo')`。
+
+这个方法可以与`Proxy.defineProperty`配合使用。
+
+```javascript
+const p = new Proxy({}, {
+  defineProperty(target, prop, descriptor) {
+    console.log(descriptor);
+    return Reflect.defineProperty(target, prop, descriptor);
+  }
+});
+
+p.foo = 'bar';
+// {value: "bar", writable: true, enumerable: true, configurable: true}
+
+p.foo // "bar"
+```
+
+上面代码中，`Proxy.defineProperty`对属性赋值设置了拦截，然后使用`Reflect.defineProperty`完成了赋值。
+
+### Reflect.getOwnPropertyDescriptor(target, propertyKey)
+
+`Reflect.getOwnPropertyDescriptor`基本等同于`Object.getOwnPropertyDescriptor`，用于得到指定属性的描述对象，将来会替代掉后者。
+
+```javascript
+var myObject = {};
+Object.defineProperty(myObject, 'hidden', {
+  value: true,
+  enumerable: false,
+});
+
+// 旧写法
+var theDescriptor = Object.getOwnPropertyDescriptor(myObject, 'hidden');
+
+// 新写法
+var theDescriptor = Reflect.getOwnPropertyDescriptor(myObject, 'hidden');
+```
+
+`Reflect.getOwnPropertyDescriptor`和`Object.getOwnPropertyDescriptor`的一个区别是，如果第一个参数不是对象，`Object.getOwnPropertyDescriptor(1, 'foo')`不报错，返回`undefined`，而`Reflect.getOwnPropertyDescriptor(1, 'foo')`会抛出错误，表示参数非法。
+
+### Reflect.isExtensible(target)
+
+`Reflect.isExtensible`方法对应`Object.isExtensible`，返回一个布尔值，表示当前对象是否可扩展。
+
+```javascript
+const myObject = {};
+
+// 旧写法
+Object.isExtensible(myObject) // true
+
+// 新写法
+Reflect.isExtensible(myObject) // true
+```
+
+如果参数不是对象，`Object.isExtensible`会返回`false`，因为非对象本来就是不可扩展的，而`Reflect.isExtensible`会报错。
+
+```javascript
+Object.isExtensible(1) // false
+Reflect.isExtensible(1) // 报错
+```
 
 
 
+### Reflect.preventExtensions(target)
+
+`Reflect.preventExtensions`对应`Object.preventExtensions`方法，用于让一个对象变为不可扩展。它返回一个布尔值，表示是否操作成功。
+
+```javascript
+var myObject = {};
+
+// 旧写法
+Object.preventExtensions(myObject) // Object {}
+
+// 新写法
+Reflect.preventExtensions(myObject) // true
+```
+
+如果参数不是对象，`Object.preventExtensions`在 ES5 环境报错，在 ES6 环境返回传入的参数，而`Reflect.preventExtensions`会报错。
+
+```javascript
+// ES5 环境
+Object.preventExtensions(1) // 报错
+
+// ES6 环境
+Object.preventExtensions(1) // 1
+
+// 新写法
+Reflect.preventExtensions(1) // 报错
+```
 
 
 
+### Reflect.ownKeys()
+
+`Reflect.ownKeys`方法用于返回对象的所有属性，基本等同于`Object.getOwnPropertyNames`与`Object.getOwnPropertySymbols`之和。
+
+```javascript
+var myObject = {
+  foo: 1,
+  bar: 2,
+  [Symbol.for('baz')]: 3,
+  [Symbol.for('bing')]: 4,
+};
+
+// 旧写法
+Object.getOwnPropertyNames(myObject)
+// ['foo', 'bar']
+
+Object.getOwnPropertySymbols(myObject)
+//[Symbol(baz), Symbol(bing)]
+
+// 新写法
+Reflect.ownKeys(myObject)
+// ['foo', 'bar', Symbol(baz), Symbol(bing)]
+```
+
+如果`Reflect.ownKeys()`方法的第一个参数不是对象，会报错。
 
 
+
+## 3、实例： 使用 Proxy 实现观察者模式
+
+观察者模式（Observer mode）指的是函数自动观察数据对象，一旦对象有变化，函数就会自动执行。
+
+```javascript
+const person = observable({
+  name: '张三',
+  age: 20
+});
+
+function print() {
+  console.log(`${person.name}, ${person.age}`)
+}
+
+observe(print);
+person.name = '李四';
+// 输出
+// 李四, 20
+```
+
+上面代码中，数据对象`person`是观察目标，函数`print`是观察者。一旦数据对象发生变化，`print`就会自动执行。
+
+下面，使用 Proxy 写一个观察者模式的最简单实现，即实现`observable`和`observe`这两个函数。思路是`observable`函数返回一个原始对象的 Proxy 代理，拦截赋值操作，触发充当观察者的各个函数。
+
+```javascript
+const queuedObservers = new Set();
+
+const observe = fn => queuedObservers.add(fn);
+const observable = obj => new Proxy(obj, {set});
+
+function set(target, key, value, receiver) {
+  const result = Reflect.set(target, key, value, receiver);
+  queuedObservers.forEach(observer => observer());
+  return result;
+}
+```
+
+上面代码中，先定义了一个`Set`集合，所有观察者函数都放进这个集合。然后，`observable`函数返回原始对象的代理，拦截赋值操作。拦截函数`set`之中，会自动执行所有观察者。
