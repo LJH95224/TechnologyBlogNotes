@@ -31,5 +31,7 @@ jobs:
     - name: Deploy
       uses: JamesIves/github-pages-deploy-action@3.5.9
       with:
+        ACCESS_TOKEN: ${{ secrets.BLOGNOTES }}
         BRANCH: gh-pages
         FOLDER: docs/.vuepress/dist
+        CLEAN: true
