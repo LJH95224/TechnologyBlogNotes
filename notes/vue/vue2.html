@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>路由详解（一）——基础 | Alfred个人主页</title>
+    <meta name="generator" content="VuePress 1.8.2">
+    <link rel="icon" href="/blogsNote/image/hero.png">
+    <meta name="description" content="Alfred个人博客">
+    
+    <link rel="preload" href="/blogsNote/assets/css/0.styles.fca5ecdc.css" as="style"><link rel="preload" href="/blogsNote/assets/js/app.08edceb8.js" as="script"><link rel="preload" href="/blogsNote/assets/js/2.7172f03c.js" as="script"><link rel="preload" href="/blogsNote/assets/js/175.d48822a8.js" as="script"><link rel="prefetch" href="/blogsNote/assets/js/10.efc99321.js"><link rel="prefetch" href="/blogsNote/assets/js/100.b692812e.js"><link rel="prefetch" href="/blogsNote/assets/js/101.43283a19.js"><link rel="prefetch" href="/blogsNote/assets/js/102.99600fff.js"><link rel="prefetch" href="/blogsNote/assets/js/103.0fdccb36.js"><link rel="prefetch" href="/blogsNote/assets/js/104.86387624.js"><link rel="prefetch" href="/blogsNote/assets/js/105.a5b6e25d.js"><link rel="prefetch" href="/blogsNote/assets/js/106.0bfdcd77.js"><link rel="prefetch" href="/blogsNote/assets/js/107.68000273.js"><link rel="prefetch" href="/blogsNote/assets/js/108.29f64144.js"><link rel="prefetch" href="/blogsNote/assets/js/109.c20a1bd7.js"><link rel="prefetch" href="/blogsNote/assets/js/11.49ddafb3.js"><link rel="prefetch" href="/blogsNote/assets/js/110.d6025e3d.js"><link rel="prefetch" href="/blogsNote/assets/js/111.a4f1b17d.js"><link rel="prefetch" href="/blogsNote/assets/js/112.9d197804.js"><link rel="prefetch" href="/blogsNote/assets/js/113.81825a54.js"><link rel="prefetch" href="/blogsNote/assets/js/114.21635a84.js"><link rel="prefetch" href="/blogsNote/assets/js/115.91660e40.js"><link rel="prefetch" href="/blogsNote/assets/js/116.6e66a6e5.js"><link rel="prefetch" href="/blogsNote/assets/js/117.60d67462.js"><link rel="prefetch" href="/blogsNote/assets/js/118.16a22a49.js"><link rel="prefetch" href="/blogsNote/assets/js/119.b52d0e3d.js"><link rel="prefetch" href="/blogsNote/assets/js/12.a65ea5f3.js"><link rel="prefetch" href="/blogsNote/assets/js/120.408520ea.js"><link rel="prefetch" href="/blogsNote/assets/js/121.df5f1703.js"><link rel="prefetch" href="/blogsNote/assets/js/122.0c13da52.js"><link rel="prefetch" href="/blogsNote/assets/js/123.e5c5e7d3.js"><link rel="prefetch" href="/blogsNote/assets/js/124.ad17bed9.js"><link rel="prefetch" href="/blogsNote/assets/js/125.e89672e3.js"><link rel="prefetch" href="/blogsNote/assets/js/126.483cb18e.js"><link rel="prefetch" href="/blogsNote/assets/js/127.7bdff85d.js"><link rel="prefetch" href="/blogsNote/assets/js/128.47eb1786.js"><link rel="prefetch" href="/blogsNote/assets/js/129.d9640663.js"><link rel="prefetch" href="/blogsNote/assets/js/13.6e914874.js"><link rel="prefetch" href="/blogsNote/assets/js/130.8a32d41e.js"><link rel="prefetch" href="/blogsNote/assets/js/131.21f91019.js"><link rel="prefetch" href="/blogsNote/assets/js/132.61b902d6.js"><link rel="prefetch" href="/blogsNote/assets/js/133.cc782b79.js"><link rel="prefetch" href="/blogsNote/assets/js/134.90e2b963.js"><link rel="prefetch" href="/blogsNote/assets/js/135.6b09a026.js"><link rel="prefetch" href="/blogsNote/assets/js/136.44168bc5.js"><link rel="prefetch" href="/blogsNote/assets/js/137.0b9a2ac0.js"><link rel="prefetch" href="/blogsNote/assets/js/138.bead498b.js"><link rel="prefetch" href="/blogsNote/assets/js/139.1c95af8e.js"><link rel="prefetch" href="/blogsNote/assets/js/14.5fa1ef95.js"><link rel="prefetch" href="/blogsNote/assets/js/140.e014480a.js"><link rel="prefetch" href="/blogsNote/assets/js/141.19f2df6b.js"><link rel="prefetch" href="/blogsNote/assets/js/142.b8eaf54c.js"><link rel="prefetch" href="/blogsNote/assets/js/143.aecbe7ac.js"><link rel="prefetch" href="/blogsNote/assets/js/144.aea140ef.js"><link rel="prefetch" href="/blogsNote/assets/js/145.d738a72d.js"><link rel="prefetch" href="/blogsNote/assets/js/146.7359bf23.js"><link rel="prefetch" href="/blogsNote/assets/js/147.e29abb85.js"><link rel="prefetch" href="/blogsNote/assets/js/148.25c7d7ee.js"><link rel="prefetch" href="/blogsNote/assets/js/149.14fad727.js"><link rel="prefetch" href="/blogsNote/assets/js/15.8c02cb08.js"><link rel="prefetch" href="/blogsNote/assets/js/150.a380ea4d.js"><link rel="prefetch" href="/blogsNote/assets/js/151.6a958bc6.js"><link rel="prefetch" href="/blogsNote/assets/js/152.174b8611.js"><link rel="prefetch" href="/blogsNote/assets/js/153.cd838854.js"><link rel="prefetch" href="/blogsNote/assets/js/154.ba1dd195.js"><link rel="prefetch" href="/blogsNote/assets/js/155.4d56aded.js"><link rel="prefetch" href="/blogsNote/assets/js/156.0cd57fa0.js"><link rel="prefetch" href="/blogsNote/assets/js/157.502796bb.js"><link rel="prefetch" href="/blogsNote/assets/js/158.a1a85620.js"><link rel="prefetch" href="/blogsNote/assets/js/159.95759e9e.js"><link rel="prefetch" href="/blogsNote/assets/js/16.82512bea.js"><link rel="prefetch" href="/blogsNote/assets/js/160.1ca8f870.js"><link rel="prefetch" href="/blogsNote/assets/js/161.1c646677.js"><link rel="prefetch" href="/blogsNote/assets/js/162.aa37db74.js"><link rel="prefetch" href="/blogsNote/assets/js/163.8bc5c9e8.js"><link rel="prefetch" href="/blogsNote/assets/js/164.434b7ad1.js"><link rel="prefetch" href="/blogsNote/assets/js/165.a190c21c.js"><link rel="prefetch" href="/blogsNote/assets/js/166.3d3faab9.js"><link rel="prefetch" href="/blogsNote/assets/js/167.76031c09.js"><link rel="prefetch" href="/blogsNote/assets/js/168.8aba538a.js"><link rel="prefetch" href="/blogsNote/assets/js/169.e0ac76dc.js"><link rel="prefetch" href="/blogsNote/assets/js/17.21d3d56f.js"><link rel="prefetch" href="/blogsNote/assets/js/170.d1349318.js"><link rel="prefetch" href="/blogsNote/assets/js/171.86575d30.js"><link rel="prefetch" href="/blogsNote/assets/js/172.8bf76546.js"><link rel="prefetch" href="/blogsNote/assets/js/173.20bec7df.js"><link rel="prefetch" href="/blogsNote/assets/js/174.4259680d.js"><link rel="prefetch" href="/blogsNote/assets/js/176.e1c6dec3.js"><link rel="prefetch" href="/blogsNote/assets/js/177.6cf24f62.js"><link rel="prefetch" href="/blogsNote/assets/js/178.c9979a07.js"><link rel="prefetch" href="/blogsNote/assets/js/179.3d6916ba.js"><link rel="prefetch" href="/blogsNote/assets/js/18.bf214047.js"><link rel="prefetch" href="/blogsNote/assets/js/180.b6ae718c.js"><link rel="prefetch" href="/blogsNote/assets/js/181.e0c7ef20.js"><link rel="prefetch" href="/blogsNote/assets/js/182.82d2494b.js"><link rel="prefetch" href="/blogsNote/assets/js/183.3a13629e.js"><link rel="prefetch" href="/blogsNote/assets/js/184.c36579c0.js"><link rel="prefetch" href="/blogsNote/assets/js/185.dc655daa.js"><link rel="prefetch" href="/blogsNote/assets/js/186.14b566e5.js"><link rel="prefetch" href="/blogsNote/assets/js/187.c5182005.js"><link rel="prefetch" href="/blogsNote/assets/js/188.d1990b4f.js"><link rel="prefetch" href="/blogsNote/assets/js/189.02525d53.js"><link rel="prefetch" href="/blogsNote/assets/js/19.5dd9a2bc.js"><link rel="prefetch" href="/blogsNote/assets/js/190.cec78dfb.js"><link rel="prefetch" href="/blogsNote/assets/js/20.3005efb7.js"><link rel="prefetch" href="/blogsNote/assets/js/21.2bfc3230.js"><link rel="prefetch" href="/blogsNote/assets/js/22.0f9adcd7.js"><link rel="prefetch" href="/blogsNote/assets/js/23.b5561ab9.js"><link rel="prefetch" href="/blogsNote/assets/js/24.2991a549.js"><link rel="prefetch" href="/blogsNote/assets/js/25.89b7afb5.js"><link rel="prefetch" href="/blogsNote/assets/js/26.7fbd2328.js"><link rel="prefetch" href="/blogsNote/assets/js/27.8d3b5c35.js"><link rel="prefetch" href="/blogsNote/assets/js/28.a7129ef1.js"><link rel="prefetch" href="/blogsNote/assets/js/29.bbdb45b6.js"><link rel="prefetch" href="/blogsNote/assets/js/3.8ea3836d.js"><link rel="prefetch" href="/blogsNote/assets/js/30.cb19e1d3.js"><link rel="prefetch" href="/blogsNote/assets/js/31.518a6a7a.js"><link rel="prefetch" href="/blogsNote/assets/js/32.c9794f7f.js"><link rel="prefetch" href="/blogsNote/assets/js/33.69145f71.js"><link rel="prefetch" href="/blogsNote/assets/js/34.e703371c.js"><link rel="prefetch" href="/blogsNote/assets/js/35.c7b3d946.js"><link rel="prefetch" href="/blogsNote/assets/js/36.9194ff3a.js"><link rel="prefetch" href="/blogsNote/assets/js/37.cc6ceb3b.js"><link rel="prefetch" href="/blogsNote/assets/js/38.0c9c520b.js"><link rel="prefetch" href="/blogsNote/assets/js/39.1c2aa7de.js"><link rel="prefetch" href="/blogsNote/assets/js/4.5ef80a21.js"><link rel="prefetch" href="/blogsNote/assets/js/40.4fe4c1b7.js"><link rel="prefetch" href="/blogsNote/assets/js/41.85934ceb.js"><link rel="prefetch" href="/blogsNote/assets/js/42.805409b1.js"><link rel="prefetch" href="/blogsNote/assets/js/43.352dbbcc.js"><link rel="prefetch" href="/blogsNote/assets/js/44.8d8c04ab.js"><link rel="prefetch" href="/blogsNote/assets/js/45.33e1d289.js"><link rel="prefetch" href="/blogsNote/assets/js/46.79da3ad0.js"><link rel="prefetch" href="/blogsNote/assets/js/47.5902a23a.js"><link rel="prefetch" href="/blogsNote/assets/js/48.45fa6ef5.js"><link rel="prefetch" href="/blogsNote/assets/js/49.2ab49164.js"><link rel="prefetch" href="/blogsNote/assets/js/5.c955c676.js"><link rel="prefetch" href="/blogsNote/assets/js/50.5915e50f.js"><link rel="prefetch" href="/blogsNote/assets/js/51.fcdaeb81.js"><link rel="prefetch" href="/blogsNote/assets/js/52.a1ca619e.js"><link rel="prefetch" href="/blogsNote/assets/js/53.9f208fd2.js"><link rel="prefetch" href="/blogsNote/assets/js/54.2500c73c.js"><link rel="prefetch" href="/blogsNote/assets/js/55.2463fb2d.js"><link rel="prefetch" href="/blogsNote/assets/js/56.6422b056.js"><link rel="prefetch" href="/blogsNote/assets/js/57.05b292ab.js"><link rel="prefetch" href="/blogsNote/assets/js/58.4ed61932.js"><link rel="prefetch" href="/blogsNote/assets/js/59.cea0b1c0.js"><link rel="prefetch" href="/blogsNote/assets/js/6.4a3cf4b3.js"><link rel="prefetch" href="/blogsNote/assets/js/60.739b1535.js"><link rel="prefetch" href="/blogsNote/assets/js/61.63353df3.js"><link rel="prefetch" href="/blogsNote/assets/js/62.c0673099.js"><link rel="prefetch" href="/blogsNote/assets/js/63.8bf91e2c.js"><link rel="prefetch" href="/blogsNote/assets/js/64.44601365.js"><link rel="prefetch" href="/blogsNote/assets/js/65.4fd3a032.js"><link rel="prefetch" href="/blogsNote/assets/js/66.e44413cf.js"><link rel="prefetch" href="/blogsNote/assets/js/67.a2dfef74.js"><link rel="prefetch" href="/blogsNote/assets/js/68.d08df355.js"><link rel="prefetch" href="/blogsNote/assets/js/69.f96ba042.js"><link rel="prefetch" href="/blogsNote/assets/js/7.5763c663.js"><link rel="prefetch" href="/blogsNote/assets/js/70.a0f09796.js"><link rel="prefetch" href="/blogsNote/assets/js/71.279839b5.js"><link rel="prefetch" href="/blogsNote/assets/js/72.a1da3840.js"><link rel="prefetch" href="/blogsNote/assets/js/73.8f81d7b7.js"><link rel="prefetch" href="/blogsNote/assets/js/74.e54ada44.js"><link rel="prefetch" href="/blogsNote/assets/js/75.bb1a05a0.js"><link rel="prefetch" href="/blogsNote/assets/js/76.1c4168c7.js"><link rel="prefetch" href="/blogsNote/assets/js/77.cb0d5028.js"><link rel="prefetch" href="/blogsNote/assets/js/78.17b80c60.js"><link rel="prefetch" href="/blogsNote/assets/js/79.86834fd3.js"><link rel="prefetch" href="/blogsNote/assets/js/8.c1a09dea.js"><link rel="prefetch" href="/blogsNote/assets/js/80.4d53c128.js"><link rel="prefetch" href="/blogsNote/assets/js/81.9eb864d9.js"><link rel="prefetch" href="/blogsNote/assets/js/82.4c9ec53b.js"><link rel="prefetch" href="/blogsNote/assets/js/83.1d946fa0.js"><link rel="prefetch" href="/blogsNote/assets/js/84.1841bbbf.js"><link rel="prefetch" href="/blogsNote/assets/js/85.e50a0b90.js"><link rel="prefetch" href="/blogsNote/assets/js/86.ea3ac7c6.js"><link rel="prefetch" href="/blogsNote/assets/js/87.b9b9aac7.js"><link rel="prefetch" href="/blogsNote/assets/js/88.685cba12.js"><link rel="prefetch" href="/blogsNote/assets/js/89.72f44315.js"><link rel="prefetch" href="/blogsNote/assets/js/9.4b75c128.js"><link rel="prefetch" href="/blogsNote/assets/js/90.627dda78.js"><link rel="prefetch" href="/blogsNote/assets/js/91.b42d60f8.js"><link rel="prefetch" href="/blogsNote/assets/js/92.16507ef7.js"><link rel="prefetch" href="/blogsNote/assets/js/93.309894de.js"><link rel="prefetch" href="/blogsNote/assets/js/94.63a141bc.js"><link rel="prefetch" href="/blogsNote/assets/js/95.38b709de.js"><link rel="prefetch" href="/blogsNote/assets/js/96.fd5e093e.js"><link rel="prefetch" href="/blogsNote/assets/js/97.f9f59d10.js"><link rel="prefetch" href="/blogsNote/assets/js/98.6ec0ccff.js"><link rel="prefetch" href="/blogsNote/assets/js/99.f95861b8.js">
+    <link rel="stylesheet" href="/blogsNote/assets/css/0.styles.fca5ecdc.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/blogsNote/" class="home-link router-link-active"><!----> <span class="site-name">Alfred个人主页</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/blogsNote/" class="nav-link">
+  主页
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="开源项目" class="dropdown-title"><span class="title">开源项目</span> <span class="arrow down"></span></button> <button type="button" aria-label="开源项目" class="mobile-dropdown-title"><span class="title">开源项目</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/blogsNote/notes/problem/" class="nav-link">
+  常用问题
+</a></li><li class="dropdown-item"><!----> <a href="/blogsNote/notes/commonMethods/" class="nav-link">
+  公用方法
+</a></li><li class="dropdown-item"><!----> <a href="/blogsNote/notes/vscodePage/" class="nav-link">
+  vscode
+</a></li><li class="dropdown-item"><!----> <a href="/blogsNote/notes/vue/.html" class="nav-link">
+  大文件上传和断点续传
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="技术笔记" class="dropdown-title"><span class="title">技术笔记</span> <span class="arrow down"></span></button> <button type="button" aria-label="技术笔记" class="mobile-dropdown-title"><span class="title">技术笔记</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/blogsNote/notes/linux/" class="nav-link">
+  Linux
+</a></li><li class="dropdown-item"><!----> <a href="/blogsNote/notes/cordova/" class="nav-link">
+  cordova
+</a></li><li class="dropdown-item"><!----> <a href="/blogsNote/notes/base/" class="nav-link">
+  基础知识
+</a></li><li class="dropdown-item"><!----> <a href="/blogsNote/notes/Markdown/" class="nav-link">
+  Markdown
+</a></li><li class="dropdown-item"><!----> <a href="/blogsNote/notes/vue/" class="nav-link router-link-active">
+  vue技术栈
+</a></li><li class="dropdown-item"><!----> <a href="/blogsNote/notes/typeScript/" class="nav-link">
+  typeScript
+</a></li><li class="dropdown-item"><!----> <a href="/blogsNote/notes/ECMAScript/" class="nav-link">
+  ECMAScript 6 入门
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="面试题" class="dropdown-title"><span class="title">面试题</span> <span class="arrow down"></span></button> <button type="button" aria-label="面试题" class="mobile-dropdown-title"><span class="title">面试题</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/blogsNote/interview/javascript/" class="nav-link">
+  JS 题
+</a></li><li class="dropdown-item"><!----> <a href="/blogsNote/interview/vue/" class="nav-link">
+  Vue 题
+</a></li><li class="dropdown-item"><!----> <a href="/blogsNote/interview/programme/" class="nav-link">
+  编程题
+</a></li><li class="dropdown-item"><!----> <a href="/blogsNote/interview/base/" class="nav-link">
+  基本面试题
+</a></li></ul></div></div><div class="nav-item"><a href="/blogsNote/aboutMe/" class="nav-link">
+  关于我
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="工具箱" class="dropdown-title"><span class="title">工具箱</span> <span class="arrow down"></span></button> <button type="button" aria-label="工具箱" class="mobile-dropdown-title"><span class="title">工具箱</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          在线服务
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="https://www.aliyun.com/" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  阿里云
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li></ul></li><li class="dropdown-item"><h4>
+          在线博客
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="https://juejin.im/" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  掘金
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li><li class="dropdown-subitem"><a href="https://www.zhihu.com/" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  知乎
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li><li class="dropdown-subitem"><a href="https://www.jianshu.com/" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  简书
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li><li class="dropdown-subitem"><a href="https://blog.csdn.net/" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  csdn
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li><li class="dropdown-subitem"><a href="https://segmentfault.com" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  segmentfault
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li></ul></li></ul></div></div><div class="nav-item"><a href="https://github.com/LJH95224" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/blogsNote/" class="nav-link">
+  主页
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="开源项目" class="dropdown-title"><span class="title">开源项目</span> <span class="arrow down"></span></button> <button type="button" aria-label="开源项目" class="mobile-dropdown-title"><span class="title">开源项目</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/blogsNote/notes/problem/" class="nav-link">
+  常用问题
+</a></li><li class="dropdown-item"><!----> <a href="/blogsNote/notes/commonMethods/" class="nav-link">
+  公用方法
+</a></li><li class="dropdown-item"><!----> <a href="/blogsNote/notes/vscodePage/" class="nav-link">
+  vscode
+</a></li><li class="dropdown-item"><!----> <a href="/blogsNote/notes/vue/.html" class="nav-link">
+  大文件上传和断点续传
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="技术笔记" class="dropdown-title"><span class="title">技术笔记</span> <span class="arrow down"></span></button> <button type="button" aria-label="技术笔记" class="mobile-dropdown-title"><span class="title">技术笔记</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/blogsNote/notes/linux/" class="nav-link">
+  Linux
+</a></li><li class="dropdown-item"><!----> <a href="/blogsNote/notes/cordova/" class="nav-link">
+  cordova
+</a></li><li class="dropdown-item"><!----> <a href="/blogsNote/notes/base/" class="nav-link">
+  基础知识
+</a></li><li class="dropdown-item"><!----> <a href="/blogsNote/notes/Markdown/" class="nav-link">
+  Markdown
+</a></li><li class="dropdown-item"><!----> <a href="/blogsNote/notes/vue/" class="nav-link router-link-active">
+  vue技术栈
+</a></li><li class="dropdown-item"><!----> <a href="/blogsNote/notes/typeScript/" class="nav-link">
+  typeScript
+</a></li><li class="dropdown-item"><!----> <a href="/blogsNote/notes/ECMAScript/" class="nav-link">
+  ECMAScript 6 入门
+</a></li></ul></div></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="面试题" class="dropdown-title"><span class="title">面试题</span> <span class="arrow down"></span></button> <button type="button" aria-label="面试题" class="mobile-dropdown-title"><span class="title">面试题</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><!----> <a href="/blogsNote/interview/javascript/" class="nav-link">
+  JS 题
+</a></li><li class="dropdown-item"><!----> <a href="/blogsNote/interview/vue/" class="nav-link">
+  Vue 题
+</a></li><li class="dropdown-item"><!----> <a href="/blogsNote/interview/programme/" class="nav-link">
+  编程题
+</a></li><li class="dropdown-item"><!----> <a href="/blogsNote/interview/base/" class="nav-link">
+  基本面试题
+</a></li></ul></div></div><div class="nav-item"><a href="/blogsNote/aboutMe/" class="nav-link">
+  关于我
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="工具箱" class="dropdown-title"><span class="title">工具箱</span> <span class="arrow down"></span></button> <button type="button" aria-label="工具箱" class="mobile-dropdown-title"><span class="title">工具箱</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          在线服务
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="https://www.aliyun.com/" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  阿里云
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li></ul></li><li class="dropdown-item"><h4>
+          在线博客
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="https://juejin.im/" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  掘金
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li><li class="dropdown-subitem"><a href="https://www.zhihu.com/" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  知乎
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li><li class="dropdown-subitem"><a href="https://www.jianshu.com/" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  简书
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li><li class="dropdown-subitem"><a href="https://blog.csdn.net/" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  csdn
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li><li class="dropdown-subitem"><a href="https://segmentfault.com" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  segmentfault
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></li></ul></li></ul></div></div><div class="nav-item"><a href="https://github.com/LJH95224" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Github
+  <span><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg> <span class="sr-only">(opens new window)</span></span></a></div> <!----></nav>  <ul class="sidebar-links"><li><a href="/blogsNote/notes/vue/vue1.html" class="sidebar-link">使用Vue-cli3.0创建一个项目</a></li><li><a href="/blogsNote/notes/vue/vue2.html" aria-current="page" class="active sidebar-link">路由详解（一）——基础</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/blogsNote/notes/vue/vue2.html#router-link和router-view组件" class="sidebar-link">router-link和router-view组件</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/blogsNote/notes/vue/vue2.html#router文件夹-index-js解析" class="sidebar-link">router文件夹 -&gt; index.js解析</a></li><li class="sidebar-sub-header"><a href="/blogsNote/notes/vue/vue2.html#app-vue里面示例分析" class="sidebar-link">App.vue里面示例分析</a></li><li class="sidebar-sub-header"><a href="/blogsNote/notes/vue/vue2.html#router文件夹-router-js解析" class="sidebar-link">router文件夹 -&gt; router.js解析</a></li></ul></li><li class="sidebar-sub-header"><a href="/blogsNote/notes/vue/vue2.html#路由配置-动态路由" class="sidebar-link">路由配置-动态路由</a></li><li class="sidebar-sub-header"><a href="/blogsNote/notes/vue/vue2.html#路由配置-嵌套路由" class="sidebar-link">路由配置-嵌套路由</a></li><li class="sidebar-sub-header"><a href="/blogsNote/notes/vue/vue2.html#路由配置-命名路由" class="sidebar-link">路由配置-命名路由</a></li><li class="sidebar-sub-header"><a href="/blogsNote/notes/vue/vue2.html#路由配置-命名视图" class="sidebar-link">路由配置-命名视图</a></li><li class="sidebar-sub-header"><a href="/blogsNote/notes/vue/vue2.html#重定向" class="sidebar-link">重定向</a></li><li class="sidebar-sub-header"><a href="/blogsNote/notes/vue/vue2.html#别名" class="sidebar-link">别名</a></li><li class="sidebar-sub-header"><a href="/blogsNote/notes/vue/vue2.html#js操作路由" class="sidebar-link">JS操作路由</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/blogsNote/notes/vue/vue2.html#返回上一页" class="sidebar-link">返回上一页</a></li><li class="sidebar-sub-header"><a href="/blogsNote/notes/vue/vue2.html#跳转到指定页面-push" class="sidebar-link">跳转到指定页面 push</a></li><li class="sidebar-sub-header"><a href="/blogsNote/notes/vue/vue2.html#替换到指定页面-replace" class="sidebar-link">替换到指定页面 replace</a></li></ul></li></ul></li><li><a href="/blogsNote/notes/vue/vue3.html" class="sidebar-link">路由详解（二）—— 进阶</a></li><li><a href="/blogsNote/notes/vue/vue4.html" class="sidebar-link">状态管理</a></li><li><a href="/blogsNote/notes/vue/vue5.html" class="sidebar-link">Hello Vue5</a></li><li><a href="/blogsNote/notes/vue/vue6.html" class="sidebar-link">Hello Vue6</a></li><li><a href="/blogsNote/notes/vue/vue7.html" class="sidebar-link">Hello Vue7</a></li><li><a href="/blogsNote/notes/vue/vue8.html" class="sidebar-link">Ajax请求</a></li><li><a href="/blogsNote/notes/vue/vue9.html" class="sidebar-link">Hello Vue9</a></li><li><a href="/blogsNote/notes/vue/vue10.html" class="sidebar-link">Hello Vue10</a></li><li><a href="/blogsNote/notes/vue/vue11.html" class="sidebar-link">Hello Vue11</a></li><li><a href="/blogsNote/notes/vue/vue12.html" class="sidebar-link">Hello Vue12</a></li><li><a href="/blogsNote/notes/vue/vue13.html" class="sidebar-link">Hello Vue13</a></li><li><a href="/blogsNote/notes/vue/vue14.html" class="sidebar-link">Hello Vue14</a></li><li><a href="/blogsNote/notes/vue/vue15.html" class="sidebar-link">Hello Vue15</a></li><li><a href="/blogsNote/notes/vue/vue16.html" class="sidebar-link">Hello Vue16</a></li><li><a href="/blogsNote/notes/vue/vue17.html" class="sidebar-link">Hello Vue17</a></li><li><a href="/blogsNote/notes/vue/vue18.html" class="sidebar-link">Hello Vue18</a></li><li><a href="/blogsNote/notes/vue/vue19.html" class="sidebar-link">Hello Vue19</a></li><li><a href="/blogsNote/notes/vue/vue20.html" class="sidebar-link">Hello Vue20</a></li><li><a href="/blogsNote/notes/vue/vue21.html" class="sidebar-link">Hello Vue21</a></li><li><a href="/blogsNote/notes/vue/vue22.html" class="sidebar-link">Hello Vue22</a></li><li><a href="/blogsNote/notes/vue/vue23.html" class="sidebar-link">Hello Vue23</a></li><li><a href="/blogsNote/notes/vue/vue24.html" class="sidebar-link">Hello Vue24</a></li><li><a href="/blogsNote/notes/vue/vue25.html" class="sidebar-link">Hello Vue25</a></li><li><a href="/blogsNote/notes/vue/vue26.html" class="sidebar-link">Hello Vue26</a></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="路由详解-一-基础"><a href="#路由详解-一-基础" class="header-anchor">#</a> 路由详解（一）——基础</h1> <blockquote><p><strong>课程主要内容</strong><br>
+1、 router-link 和 router-view组件 <br>
+2、 路由配置 <br>   a. 动态路由<br>   b. 嵌套路由<br>    c. 命名路由 <br>   d. 命名视图 <br>
+3、 JS操作路由 <br>
+4、 重定向和别名 <br></p></blockquote> <h2 id="router-link和router-view组件"><a href="#router-link和router-view组件" class="header-anchor">#</a> router-link和router-view组件</h2> <h3 id="router文件夹-index-js解析"><a href="#router文件夹-index-js解析" class="header-anchor">#</a> router文件夹 -&gt; index.js解析</h3> <p>index.js里面创建的是路由实例，在router.js里面，放置的是路由列表</p> <div class="language- extra-class"><pre class="language-text"><code>import Vue from 'vue'
+import Router from 'vue-router'
+&lt;!--引进路由列表--&gt;
+import routes from './router'
+&lt;!--Router插件要想引进来的话需要用Vue.use方法加载进来--&gt;
+Vue.use(Router)
+
+export default new Router({
+  routes: routes
+})
+
+</code></pre></div><h3 id="app-vue里面示例分析"><a href="#app-vue里面示例分析" class="header-anchor">#</a> App.vue里面示例分析</h3> <p>在App.vue示例里面，有两个router-link组件，一个router-view组件。
+router-link这个组件，它其实是封装了一个 <strong>a</strong> 标签，也就是链接标签，里面有一个重要属性 <strong>to</strong> 它指定的值是一个路径，在 router-link 中间你可以包含一些内容。</p> <p>router-view组件是一个视图渲染组件，通过 router-link 跳转到的页面加载的组件都会在 router-view 这个地方渲染</p> <div class="language- extra-class"><pre class="language-text"><code>&lt;template&gt;
+  &lt;div id=&quot;app&quot;&gt;
+    &lt;div id=&quot;nav&quot;&gt;
+      &lt;router-link to=&quot;/&quot;&gt;Home&lt;/router-link&gt; |
+      &lt;router-link to=&quot;/about&quot;&gt;About&lt;/router-link&gt;
+    &lt;/div&gt;
+    &lt;router-view/&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+</code></pre></div><p>对于router-link 定义的路径，对应的要渲染的组件在 <strong>router文件夹</strong> 的 <strong>router.js</strong> 路由列表里面定义</p> <h3 id="router文件夹-router-js解析"><a href="#router文件夹-router-js解析" class="header-anchor">#</a> router文件夹 -&gt; router.js解析</h3> <p>首先，路由列表是一个数组，里面包含着路由对象，一个基本的路由对象必须包含两个属性，一个是 <strong>path</strong> 一个是 <strong>component</strong>。 <br> <strong>path</strong> 指代的是路径，也就是你在url里面输入的路径。<br> <strong>component</strong> 指代的是组件，也就是你 path 里面的路径要对应的那个组件。</p> <p>第一个路由对象：我们引入了一个 <strong>Home</strong> 组件 @ 符号指代的是 src 路径。在vue.config.js里面配置的。
+第二个路由对象：path路径是 '/about' 。component 里面跟第一个路由对象写法不一样，我们看注释可以看出，这样写法可以起到一个懒加载（lazy-loaded）的作用，就是说当我们访问到这个页面的时候，他才会加载这个页面组件，这样起到一个优化的作用。</p> <div class="language- extra-class"><pre class="language-text"><code>import Home from '@/views/Home.vue'
+export default [
+  {
+    path: '/',
+    name: 'home',
+    component: Home
+  },
+  {
+    path: '/about',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =&gt; import(/* webpackChunkName: &quot;about&quot; */ '@/views/About.vue')
+  }
+]
+</code></pre></div><h2 id="路由配置-动态路由"><a href="#路由配置-动态路由" class="header-anchor">#</a> 路由配置-动态路由</h2> <p>首先我们来创建一个路由对象， (:name) 这是一个动态路由参数,然后创建一个argu.vue页面组件，在argu.vue页面显示一下 <strong>$route.params.name</strong></p> <div class="language- extra-class"><pre class="language-text"><code>router.js:
+{
+    path: '/argu/:name',
+    component: () =&gt; import('@/views/argu.vue')
+}
+</code></pre></div><div class="language- extra-class"><pre class="language-text"><code>argu.vue:
+&lt;template&gt;
+  &lt;div&gt;{{ $route.params.name }}&lt;/div&gt;
+&lt;/template&gt;
+&lt;script&gt;
+export default {
+  //
+}
+&lt;/script&gt;
+</code></pre></div><p>当你在浏览器中输入 http://localhost:8080/#/argu/lision 时，页面会显示 argu 后面的值，当改变 lision 的时候，页面上也会随之改变。</p> <p><img src="195BBB0659264445AAEB74349A8CD59E" alt="image"></p> <p><strong>$route</strong>：代表的是当前加载页面的路由对象，它里面包含一个 <strong>params</strong> 参数，<strong>params</strong> 也是一个对象，里面包含一个叫 <strong>name</strong> 的值，name的值就是动态路由上 “:name”, 无论name是什么，匹配到的都是 ** path: '/argu/:name'这个对应的路由对象** 加载的都是 <strong>argu.vue</strong> 文件。这样就能起到一个组件的复用，只需要传不同的参数，呈现同一个页面可以处理不同的逻辑。</p> <h2 id="路由配置-嵌套路由"><a href="#路由配置-嵌套路由" class="header-anchor">#</a> 路由配置-嵌套路由</h2> <p>在实际开发过程中我们经常用到多层嵌套的组件，那么这些嵌套的组件可以通过嵌套路由进行渲染。</p> <p>router.js:</p> <div class="language- extra-class"><pre class="language-text"><code>// 嵌套路由
+  {
+    path: '/parent',
+    component: () =&gt; import('@/views/parent.vue'),
+    // children属性是一个数组，里面包含嵌套在parent组件里面的子集页面
+    children: [
+      {
+        // 子集的path里面是不需要斜线的,只有父级的path才需要写 加 &quot;/&quot;。作为嵌套路由，他会自动补全子集里面的 &quot;/&quot; 所以path的值直接就是 'child'
+        path: 'child',
+        component: () =&gt; import('@/views/child.vue')
+      }
+    ]
+  }
+</code></pre></div><p>parent.vue</p> <div class="language- extra-class"><pre class="language-text"><code>&lt;template&gt;
+  &lt;div&gt;
+    I am parent
+    &lt;!-- 用来渲染路由视图 --&gt;
+    &lt;router-view&gt;&lt;/router-view&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+&lt;script&gt;
+export default {
+  //
+}
+&lt;/script&gt;
+</code></pre></div><p>child.vue</p> <div class="language- extra-class"><pre class="language-text"><code>&lt;template&gt;
+  &lt;div&gt;
+    I am child
+  &lt;/div&gt;
+&lt;/template&gt;
+&lt;script&gt;
+export default {
+  //
+}
+&lt;/script&gt;
+
+</code></pre></div><p>代码运行显示效果图：当路径为 http://localhost:8080/#/parent/child
+<img src="A31545F6B3F64310B9C1C3D3D8B554D7" alt="image"></p> <h2 id="路由配置-命名路由"><a href="#路由配置-命名路由" class="header-anchor">#</a> 路由配置-命名路由</h2> <p>在路由对象中，还有一个属性，那就是 name 属性。当你给路由对象设置一个name属性，也就是给这个路由对象命名。在 <strong>App.vue</strong> 中，有两个 <strong>router-link</strong>， 通过 <strong>to</strong> 这个属性，给他设置一个路径，点击这个地方，就会跳转到对应的路径，我们使用命名路由的时候，将路由对象的 <strong>name</strong> 值给 <strong>router-link</strong> 里面的 <strong>to</strong> 属性的时候。我们就可以通过 <strong>name</strong> 值来进行跳转。</p> <p>router.js</p> <div class="language- extra-class"><pre class="language-text"><code>  {
+    path: '/',
+    name: 'home',
+    component: Home
+  },
+  {
+    path: '/about',
+    name: 'about',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =&gt; import(/* webpackChunkName: &quot;about&quot; */ '@/views/About.vue')
+  },
+</code></pre></div><p>App.vue</p> <div class="language- extra-class"><pre class="language-text"><code>&lt;template&gt;
+  &lt;div id=&quot;app&quot;&gt;
+    &lt;div id=&quot;nav&quot;&gt;
+      &lt;router-link to=&quot;/&quot;&gt;Home&lt;/router-link&gt; |
+      &lt;router-link to=&quot;/about&quot;&gt;About&lt;/router-link&gt;
+    &lt;/div&gt;
+    &lt;router-view/&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+</code></pre></div><p>首先要给 <strong>to</strong> 传入一个对象，如果要是对象的话，那么 router-link 里面的 to 属性就不能像以前那样写了,修改如下：</p> <div class="language- extra-class"><pre class="language-text"><code>&lt;router-link v-bind:to=&quot;{name: 'about'}&quot;&gt;About&lt;/router-link&gt;
+或
+&lt;router-link :to=&quot;{name: 'about'}&quot;&gt;About&lt;/router-link&gt;
+</code></pre></div><p>运行效果入下：</p> <p>http://localhost:8080/#/</p> <p><img src="29BE7C5BB2744CF8B2F4CDF0A59FFC2B" alt="image"></p> <p>点击 about 按钮之后</p> <p>http://localhost:8080/#/about
+<img src="0CF23429107E4559AF90F2A60983F168" alt="image"></p> <p>在上文App.vue中，router-link 是双标签， router-view 是单标签。那是因为 router-link 里面有东西，我们需要在它中间放一些东西。如果组件中间不需要放东西的时候，我们也可以将 router-link 写成单标签。</p> <h2 id="路由配置-命名视图"><a href="#路由配置-命名视图" class="header-anchor">#</a> 路由配置-命名视图</h2> <p>在 App.vue 中只有一个 router-view 这么一个标签，那么如果我们想在同一个页面上显示多个视图，而且让每个视图显示在指定的位置。</p> <p>在App.vue中加入两个 router-view</p> <div class="language- extra-class"><pre class="language-text"><code>&lt;template&gt;
+  &lt;div id=&quot;app&quot;&gt;
+    &lt;div id=&quot;nav&quot;&gt;
+      &lt;router-link :to=&quot;{name: 'home'}&quot;&gt;Home&lt;/router-link&gt; |
+      &lt;router-link v-bind:to=&quot;{name: 'about'}&quot;&gt;About&lt;/router-link&gt;
+    &lt;/div&gt;
+    &lt;router-view/&gt;
+    &lt;router-view name=&quot;email&quot; /&gt;
+    &lt;router-view name=&quot;tel&quot; /&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+</code></pre></div><p>==使用的是特别要注意的是，name为router列表里面的name的值，name如果使用path的话，就会出错==</p> <p>router.js</p> <div class="language- extra-class"><pre class="language-text"><code> // 命名视图
+  {
+    path: '/named_view',
+    // 这个是 components 之前的都是 component 没有 s。 加上 s 之后说明我们要加载多个组件
+    components: {
+      // 如果在之前的 app.vue 中的 router-view 没有命名的话，那么就加载 default 对应的组件的
+      default: () =&gt; import('@/views/child.vue'),
+      email: () =&gt; import('@/views/email.vue'),
+      tel: () =&gt; import('@/views/tel.vue')
+    }
+  }
+</code></pre></div><p>email.vue</p> <div class="language- extra-class"><pre class="language-text"><code>&lt;template&gt;
+  &lt;div&gt;
+    email: 991538766@qq.com
+  &lt;/div&gt;
+&lt;/template&gt;
+&lt;script&gt;
+export default {
+  //
+}
+&lt;/script&gt;
+</code></pre></div><p>tel.vue</p> <div class="language- extra-class"><pre class="language-text"><code>&lt;template&gt;
+  &lt;div&gt;
+    tel: 16855555555
+  &lt;/div&gt;
+&lt;/template&gt;
+&lt;script&gt;
+export default {
+  //
+}
+&lt;/script&gt;
+</code></pre></div><p>运行效果图如下：
+<img src="44ECE0E999B64BC2AB0A043BC0CF8848" alt="image"></p> <p><img src="936CC00B608F499091283B501DB1BE3A" alt="image"></p> <h2 id="重定向"><a href="#重定向" class="header-anchor">#</a> 重定向</h2> <p>重定向能够帮我们把当前要访问的 url 定向到 另一个 url。比如：</p> <div class="language- extra-class"><pre class="language-text"><code>// 重定向
+  {
+    // 当我们要访问 main 这个路径的时候，他会重定向到 &quot;/&quot; 也就是 home 页
+    path: '/main1',
+    redirect: '/'
+  },
+  {
+    // 当我们要访问 main 这个路径的时候，他会重定向到 name 为 home 的页面
+    path: '/main2',
+    redirect: {
+      name: 'home'
+    }
+  },
+  // 还可以向其中插入一个方法函数
+  {
+    // 当我们要访问 main 这个路径的时候，他会重定向到 name 为 home 的页面
+    path: '/main3',
+    redirect: to =&gt; {
+      console.log(to)
+      return {
+        name: 'home'
+      }
+      // 或者我们还可以返回一个路径 &quot;/&quot; 最后的显示效果都是一样的
+      return '/'
+    }
+  }
+  // 如果使用 ES6 里面的简写，那么也是可以的
+  {
+    // 当我们要访问 main 这个路径的时候，他会重定向到 name 为 home 的页面
+    path: '/main3',
+    redirect: to =&gt; &quot;/&quot;
+</code></pre></div><p>http://localhost:8080/#/main3</p> <p><img src="BD10F60DF88B4275A83CD213D972C15B" alt="image"></p> <h2 id="别名"><a href="#别名" class="header-anchor">#</a> 别名</h2> <p>当我们访问一个路径的时候，可以给他定义一个别名，生成另外一个路径，访问路径的时候与访问别名的时候效果相同。
+router.js 我们给 home路由对象定义一个别名</p> <div class="language- extra-class"><pre class="language-text"><code>  {
+    path: '/',
+    alias: '/home_page',
+    name: 'home',
+    component: Home
+  },
+</code></pre></div><p>当我们访问首页的时候</p> <p>http://localhost:8080/#/ 与 http://localhost:8080/#/home_page 显示相同。</p> <h2 id="js操作路由"><a href="#js操作路由" class="header-anchor">#</a> JS操作路由</h2> <p>编程式的导航，通过js控制页面的跳转，返回</p> <h3 id="返回上一页"><a href="#返回上一页" class="header-anchor">#</a> 返回上一页</h3> <p>我们使用编程时导航的时候，需要用到一个路由实例。 路由实例就是 this.$router<br>
+路由实例有很多的方法，我们现在要返回上一页。我们可以用 this.$router.go(-1)。 返回后面的一页<br>
+如果 this.$router.go(1) 那么就是前进到下一页。<br>
+除了可以用这种方式可以后退的，我们还可以用 this.$router.back()</p> <h3 id="跳转到指定页面-push"><a href="#跳转到指定页面-push" class="header-anchor">#</a> 跳转到指定页面 push</h3> <p>跳转到指定页面，要使用路由实例中的 <strong>push</strong> 方法</p> <h3 id="替换到指定页面-replace"><a href="#替换到指定页面-replace" class="header-anchor">#</a> 替换到指定页面 replace</h3> <p>push和replace有什么区别呢？当我们使用push的时候，会在我们的浏览历史里加入一个浏览记录，当我们回退的时候就能回退到之前的页面；如果用replace呢？他就会把当前的浏览历史，替换成parent这个页面，如果这时候点击回退的时候，会回退到 parent 页面，不会回退到之前的页面。</p> <p>当我在push的时候添加了一些其他的信息，当我们点击跳转的时候，顶部url变成了 http://localhost:8080/#/parent?name=Alfred 多了一个参数</p> <p><img src="C72D3B2BA8EF471ABCEDE92C27C24DAA" alt="image"></p> <p>我们的argu.vue中有    当我们将跳转到parent页面转变成跳转到 argu页面之后</p> <div class="language- extra-class"><pre class="language-text"><code>&lt;template&gt;
+  &lt;div&gt;{{ $route.params.name }}&lt;/div&gt;
+&lt;/template&gt;
+</code></pre></div><div class="language- extra-class"><pre class="language-text"><code>this.$router.push({
+  name: 'argu',
+  // 同时我们也可以在对象里面添加一些信息，比如：
+  params: {
+    name: &quot;Alfred&quot;
+  }
+})
+</code></pre></div><p>顶部的地址栏变成了 http://localhost:8080/#/argu/Alfred 我们可以看到，匹配到了该页面，而且还带了一个参数。</p> <p><img src="2FEC0684AC77495F9F2B660794DE6F9B" alt="image"></p> <p>如果我们使用 ES6 的模板语法：</p> <div class="language- extra-class"><pre class="language-text"><code>const name = 'Alfred'
+this.$router.push({
+  path: `/argu/${name}`
+})
+</code></pre></div><p>这样效果也是可以的，我们需要注意一下 path 的写法。path后面定义的params是无效的。</p> <p>Home.vue全部源码</p> <div class="language- extra-class"><pre class="language-text"><code>&lt;template&gt;
+  &lt;div class=&quot;home&quot;&gt;
+    &lt;img alt=&quot;Vue logo&quot; src=&quot;../assets/img/logo.png&quot;&gt;
+    &lt;HelloWorld msg=&quot;Welcome to Your Vue.js App&quot;/&gt;
+    &lt;button @click=&quot;handleClick('back')&quot;&gt;返回上一页&lt;/button&gt;
+    &lt;button @click=&quot;handleClick('push')&quot;&gt;跳转到parent&lt;/button&gt;
+    &lt;button @click=&quot;handleClick('replace')&quot;&gt;替换到parent&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+// @ is an alias to /src
+import HelloWorld from '@/components/HelloWorld.vue'
+
+export default {
+  name: 'home',
+  components: {
+    HelloWorld
+  },
+  methods: {
+    handleClick (type) {
+      // 我们使用编程时导航的时候，需要用到一个路由实例。 路由实例就是 this.$router
+      if (type === 'back') {
+        // 路由实例有很多的方法，我们现在要返回上一页。我们可以用 this.$router.go(-1)。 返回后面的一页
+        // 如果 this.$router.go(1) 那么就是前进到下一页。
+        // this.$router.go(-1)
+        // 除了可以用这种方式可以后退的，我们还可以用 this.$router.back()
+        this.$router.back()
+      } else if (type === 'push') {
+        // 通过路径的方式
+        // this.$router.push('/parent')
+        // 命名路由的方式
+        /*
+        this.$router.push({
+          name: 'parent',
+          // 同时我们也可以在对象里面添加一些信息，比如：
+          query: {
+            name: &quot;Alfred&quot;
+          }
+        })*/
+        /*
+        // 跳转到 argu 页面
+        this.$router.push({
+          name: 'argu',
+          // 同时我们也可以在对象里面添加一些信息，比如：
+          params: {
+            name: &quot;Alfred&quot;
+          }
+        })*/
+        // 使用 ES6 的模板语法
+        const name = 'Alfred'
+        this.$router.push({
+          path: `/argu/${name}`
+        })
+      } else if (type === 'replace') {
+        this.$router.replace({
+          name: 'parent'
+        })
+      }
+    }
+  }
+}
+&lt;/script&gt;
+</code></pre></div></div> <footer class="page-edit"><!----> <!----></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/blogsNote/notes/vue/vue1.html" class="prev">
+        使用Vue-cli3.0创建一个项目
+      </a></span> <span class="next"><a href="/blogsNote/notes/vue/vue3.html">
+        路由详解（二）—— 进阶
+      </a>
+      →
+    </span></p></div> </main></div><div class="global-ui"></div></div>
+    <script src="/blogsNote/assets/js/app.08edceb8.js" defer></script><script src="/blogsNote/assets/js/2.7172f03c.js" defer></script><script src="/blogsNote/assets/js/175.d48822a8.js" defer></script>
+  </body>
+</html>
