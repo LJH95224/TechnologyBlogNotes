@@ -1,7 +1,7 @@
 module.exports = {
   title: 'Alfred个人主页',
   description: 'Alfred个人博客',
-  base: `/iTNpotesBlog.github.io/`,
+  base: process.env.NODE_ENV === 'production' ? '/blogsNote/' : '/',
   head: [
     ['link', { rel: 'icon', href: '/image/hero.png' }]
   ],
