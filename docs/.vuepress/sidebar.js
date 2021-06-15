@@ -241,6 +241,7 @@ module.exports = {
   	'JavaScript6',
   	'JavaScript7',
   	'JavaScript8',
+  	'JavaScript9'
   ],
   '/notes/cordova/': [
     'cordova1',
@@ -255,5 +256,13 @@ module.exports = {
   ],
   '/notes/base/': [
     'css1.md'
+  ],
+  '/interview/base/': [
+    'base1.md',
+    'base2.md',
+    'base3.md',
+    'base4.md',
+    'base5.md',
+    'base6.md'
   ]
 }
