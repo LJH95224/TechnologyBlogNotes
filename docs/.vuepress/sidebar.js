@@ -161,7 +161,9 @@ module.exports = {
     'ECMAScript23',
     'ECMAScript24',
     'ECMAScript25',
-    'ECMAScript26'
+    'ECMAScript26',
+    'ECMAScript27',
+    'ECMAScript28'
   ],
   '/notes/Markdown/': [
     'markdown1',

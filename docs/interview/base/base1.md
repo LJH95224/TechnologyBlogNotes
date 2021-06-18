@@ -24,3 +24,33 @@ myFunc(3);
 
 然后，我们调用 myFunc(3) 并传递 num 的值为 3，我们没有给 value 传递值， 因为我们没有给参数 `value` 传递值，它获取默认值：函数 `add` 的返回值。对于函数 `add`，我们传递值为3的 `num`给它。函数 `add` 返回 `6` 作为 `value` 的值。 
 
+### 2. 输出什么？
+
+```javascript
+class Counter {
+	#number = 10
+
+	increment() {
+		this.#number++
+	}
+	getNum() {
+		return this.#number
+	}
+}
+
+const counter = new Counter()
+counter.increment()
+console.log(counter.#number)
+
+
+```
+
+- A: `10`
+- B: `11`
+- C: `undefined`
+- D: `SyntaxError`
+
+#### 答案及解析：D 
+
+ 在 ES2020 中，通过 `#` 我们可以给 class 添加私有变量。在 class 的外部我们无法获取该值。当我们尝试输出 `counter.#number`，语法错误被抛出：我们无法在 class `Counter` 外部获取它!  `Uncaught SyntaxError: Private field '#number' must be declared in an enclosing class`
+
