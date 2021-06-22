@@ -266,5 +266,8 @@ module.exports = {
     'base4.md',
     'base5.md',
     'base6.md'
+  ],
+  '/notes/buildTools/': [
+    'webpack.md'
   ]
 }

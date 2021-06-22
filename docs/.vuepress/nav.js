@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-11-29 14:45:31
- * @LastEditTime: 2021-02-02 21:52:59
+ * @LastEditTime: 2021-06-22 16:00:40
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \TechnologyBlogNotes\docs\.vuepress\nav.js
@@ -26,11 +26,12 @@ module.exports = [
       { text: 'Linux', link: '/notes/linux/' },
       // { text: 'android', link: '/notes/android/' },
       { text: 'cordova', link: '/notes/cordova/'},
+      { text: '打包工具', link: '/notes/buildTools/'},
       { text: '基础知识', link: '/notes/base/'},
       { text: 'Markdown', link: '/notes/Markdown/'},
       { text: 'vue技术栈', link: '/notes/vue/' },
       { text: 'typeScript', link: '/notes/typeScript/' },
-      { text: 'ECMAScript 6 入门', link: '/notes/ECMAScript/' }
+      { text: 'ECMAScript 6 入门', link: '/notes/ECMAScript/' },
     ]
   },
   {
