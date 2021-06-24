@@ -1643,6 +1643,10 @@ Webpack 5 中的命名更严格
 - cheap-module-eval-source-map => eval-cheap-module-source-map
 - ^(inline-|hidden-|eval-)?(nosources-)?(cheap-(module-)?)?source-map$
 
+
+
+##### **webpack 4映射模式**
+
 ![1624355749984](../../.vuepress/public/image/buildTools/1624355749984.png)
 
 ##### 映射模式: source-map
@@ -1697,23 +1701,210 @@ Webpack 5 中的命名更严格
 
 ![1624356794727](../../.vuepress/public/image/buildTools/1624356794727.png)
 
+##### webpack 5 中映射模式
+
+> 注意: webpack 5 中 有些模式还不可以使用,一定要亲测
+
+![1624415576755](../../.vuepress/public/image/buildTools/1624415576755.png)
+
+#### 如何选取合适的映射模式
+
+- **最重要的是按照项目需求来决定**
+
+- 开发环境 (个人推荐：`eval-cheap-module-source-map`)
+- 生成环境（个人推荐：`none | nosource-source-map`）
 
 
 
+## Tree Shaking (摇树)
+
+- Tree Shaking 的作用是删除 **未引用代码（dead code）**
+  - 例如： return 后面的代码
+  - 只声明，而未使用的函数
+  - 只引入，未使用的代码
+
+![1624416606831](../../.vuepress/public/image/buildTools/1624416606831.png)
+
+红色方块表示未使用，无效代码，将无效代码去掉，只打包需要的代码
+
+![1624418111547](../../.vuepress/public/image/buildTools/1624418111547.png)
+
+### 使用 Three Shaking 的前提
+
+- 使用 ES Modules 规范的模块，才能执行 Tree Shaking
+- Tree Shaking 依赖于 ES Modules 的静态语法分析
+
+### 如何使用 Tree Shaking
+
+- 生产模式： Tree shaking 会自动开启
+- 开发模式：
+  - usedExports
+  - sideEffects
+
+### usedExports
+
+- optimization.usedExports （标记没用的代码）
+  
+  - 使用注释的方式，在代码前添加 `/* unused harmony export xxxxx */`
+  
+- terser-webpack-plugin (插件：用来删除没用的代码)
+
+  - optimization.minimze: true （删除 `unused harmony export xxxxx` 标记的代码）
+  - 在webpack 4里面需要安装，在webpack 5 无须安装
+  - https://www.npmjs.com/package/terser-webpack-plugin
+  
+- Tree Shaking 与 Source Map 存在兼容性问题
+
+  - 如果想在 source map 中使用 Tree Shaking 的话，source map 只能设置为 `source-map | inline-source-map | hidden-source-map | nosources-source-map`
+
+    > devtool: source-map | inline-source-map | hidden-source-map | nosources-source-map
+
+  - 原因： eval 模式，将 JS 输出为 字符串（不是 ES Modules 规范），导致 Tree Shaking 失效
+
+#### 使用
+
+```js
+const TerserPlugin = require('terser-webpack-plugin')
+module.exports = {
+  mode: "development",/ 优化策略
+  // 优化策略
+  optimization: {
+    // 标记未被使用的代码
+    usedExports: true,
+    // 删除 usedExports 标记的未使用的代码
+    minimize: true,
+    minimizer: [new TerserPlugin()],
+    splitChunks: {
+      chunks: 'all'
+    }
+  }
+}
+```
+
+### sideEffects （副作用）
+
+- 无副作用：如果一个模块单纯的导入导出变量，那么它是无副作用的
+- 有副作用： 如果一个模块还修改其他模块或者全局的一些东西，就有副作用
+  - 修改全局变量
+  - 在原型上拓展方法
+  - css的引入
+- sideEffects 的作用：把**未使用**但**无副作用**的模块一并删除
+  - 对于没有副作用的模块，未使用代码不会被打包（相当于压缩了输出内容）
+
+#### 使用
+
+- 开启副作用 （webpack.config.js）
+  - optimization.sideEffects: true
+- 标识代码是否有副作用 （package.json）
+  - sideEffects
+    - false: 所有代码都没有副作用 （告诉 webpack 可以安全地删除未用的 exports ）
+    - true: 所有代码都有副作用
+    - 数组：（告诉webpack 哪些模块有副作用，不用删除）
+      - 例如： ["./src/wp.js", "*.css"]
+
+```js
+  // package.json
+  "sideEffects": [
+      './src/extends.js'
+  ]
+  // webpack.config.jso 
+  // 优化策略
+  optimization: {
+    sideEffects: true,
+    // 标记未被使用的代码
+    usedExports: true,
+    // 删除 usedExports 标记的未使用的代码
+    // minimize: true,
+    // minimizer: [new TerserPlugin()],
+    splitChunks: {
+      chunks: 'all'
+    }
+  },
+```
 
 
 
+## webpack 缓存
+
+- Babel 缓存
+  - cacheDirectory: true (第二次构建时，会读取之前的缓存)
+- 文件资源缓存
+  - 如果代码在缓存期，代码更新后看不到实时效果
+  - 方案：将代码文件名称，设置为哈希名称，名称发生变化时，就加载最新的内容
+- webpack 哈希值
+  - [hash]    每次 webpack 打包生成的 hash 值
+  - [chunkhash]      不同 chunk 的 hash 值不同 同一次打包可能生成不同的 chunk
+  - [contenthash]       不同内容的 hash 值不同   同一个 chunk 中可能有不同的内容
 
 
 
+![1624432046696](../../.vuepress/public/image/buildTools/1624432046696.png)
+
+![1624432233928](../../.vuepress/public/image/buildTools/1624432233928.png)
+
+![1624432379556](../../.vuepress/public/image/buildTools/1624432379556.png)
+
+![1624432393822](../../.vuepress/public/image/buildTools/1624432393822.png)
+
+![1624432636292](../../.vuepress/public/image/buildTools/1624432636292.png)
 
 
 
+## webpack 模块解析 （resolve）
+
+- resolve
+  - 配置模块解析的规则
+  - alias: 配置模块加载的路径别名
+    - alias: {'@': resolve('src')}
+  - extensions: 引入模块时，可以省略哪些后缀
+    - extensions: [".js", ".json"]
+  - https://webpack.docschina.org/configuration/resolve/
+
+```js
+  // 模块的解析规则
+  resolve: {
+    alias: {
+      // 指定路径的别名
+      '@': resolve('src')
+    },
+    // 指定引入文件的后缀名，再引入文件时，后缀名可以省略
+    extensions: [".js", ".json", ".less"],
+    // 指定模块默认加载的路径
+    modules: [resolve(__dirname, './node_modules'), './node_modules']
+  }
+```
 
 
 
+## webpack 排除依赖 （externals）
+
+- externals
+  - 排除打包依赖项 （防止对某个依赖库进行打包）
+  - 一般来说，一些成熟的第三方库，是不需要打包的
+  - 例如：Jquery，我们可以在模板文件中直接引用 CDN 中的压缩
+  - https://webpack.docschina.org/configuration/externals/
+
+```js
+// 排除打包依赖项
+  externals: {
+    'jquery': 'jQuery'
+  }
+```
 
 
 
+## webpack 模块联邦 （Module Federation）
 
+- 多个应用，可以共享一个模块 （本地可以调用远程的模块）
+- 模块提供方
+  - name: 当前应用名称 （供调用方使用）
+  - filename: 打包后的文件名称 （供调用方使用）
+  - exposes: 暴露模块 （相当于）
+    - 模块名称： 模块文件路径
+- 模块使用方
+  - remote：导入模块 （相当于 import）
+    - 导入后的别名: "远程应用名称@远程地址/远程导出的文件名"
+  - import("导入后的名称/模块名称").then(//......)
+- https://webpack.docschina.org/concepts/module-federation/
 
+‘
